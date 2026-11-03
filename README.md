@@ -1,6 +1,6 @@
 # Sintaxe — Jornal de Tecnologia
 
-O blog editorial [Sintaxe](https://matheuspuppe-blog.apps.gestaobem.com) reconstruído com [Amarra-cais](https://github.com/puppe1990/amarra-cais): Go, HTML server-rendered (Amarra Views + Drive), Tailwind e SQLite. Os 6 ensaios, 6 colunistas e comentários vivem em `internal/db/content*.go` e são publicados no boot por seeds idempotentes.
+O blog editorial [Sintaxe](https://sintaxe.apps.gestaobem.com) reconstruído com [Amarra-cais](https://github.com/puppe1990/amarra-cais): Go, HTML server-rendered (Amarra Views + Drive), Tailwind e SQLite. O catálogo editorial vive em `internal/db/content.go` — hoje só o colunista, com os ensaios entrando conforme são escritos — e é publicado no boot por seeds idempotentes e reconciliadores.
 
 ## O que tem aqui
 

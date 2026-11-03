@@ -16,6 +16,7 @@ import (
 func newSavedHandler(t *testing.T) (*SavedHandler, store.Store) {
 	t.Helper()
 	st := seedTestStore(t)
+	seedFixtureCatalog(t, st)
 	return NewSavedHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{}), st
 }
 
@@ -46,13 +47,13 @@ func TestSavedHandler_EmptyLibrary(t *testing.T) {
 }
 
 func TestSavedHandler_ShowsOnlySavedArticles(t *testing.T) {
-	cookie := &http.Cookie{Name: bookmarkCookie, Value: "criptografia-pos-quantica-na-pratica"}
+	cookie := &http.Cookie{Name: bookmarkCookie, Value: "ensaio-de-seguranca"}
 	rr := getSaved(t, "/salvos", cookie)
 	body := rr.Body.String()
-	if !strings.Contains(body, "Criptografia Pós-Quântica") {
+	if !strings.Contains(body, "Ensaio de Segurança") {
 		t.Errorf("saved essay missing from the library")
 	}
-	if strings.Contains(body, "A Nova Fronteira dos Agentes") {
+	if strings.Contains(body, "O Primeiro Ensaio") {
 		t.Errorf("unsaved essay leaked into the library")
 	}
 	if !strings.Contains(body, `data-saved="true"`) {
@@ -61,20 +62,20 @@ func TestSavedHandler_ShowsOnlySavedArticles(t *testing.T) {
 }
 
 func TestSavedHandler_SearchWithinLibrary(t *testing.T) {
-	cookie := &http.Cookie{Name: bookmarkCookie, Value: "criptografia-pos-quantica-na-pratica,dilema-desenvolvedor-senior-sintese-codigo"}
-	rr := getSaved(t, "/salvos?q=dilema", cookie)
+	cookie := &http.Cookie{Name: bookmarkCookie, Value: "ensaio-de-seguranca,ensaio-de-opiniao"}
+	rr := getSaved(t, "/salvos?q=opini%C3%A3o", cookie)
 	body := rr.Body.String()
-	if !strings.Contains(body, "O Dilema do Desenvolvedor Sênior") {
+	if !strings.Contains(body, "Ensaio de Opinião") {
 		t.Errorf("search miss inside the library")
 	}
-	if strings.Contains(body, "Criptografia Pós-Quântica") {
+	if strings.Contains(body, "Ensaio de Segurança") {
 		t.Errorf("search leaked a non-matching saved essay")
 	}
 }
 
 func TestSavedHandler_ToggleAddsAndRemoves(t *testing.T) {
 	h, _ := newSavedHandler(t)
-	slug := "criptografia-pos-quantica-na-pratica"
+	slug := "ensaio-de-seguranca"
 
 	req, rr := postForm(t, "/salvos/"+slug, url.Values{"next": {"/?q=rust"}})
 	h.Toggle(rr, req, slug)

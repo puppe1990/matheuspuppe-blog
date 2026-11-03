@@ -15,6 +15,18 @@
   {{ template "category_nav" . }}
 
   {{ if eq .TotalResults 0 }}
+  {{ if eq .TotalArticles 0 }}
+  <div class="rounded-2xl border border-foam/10 bg-foam/[0.03] p-8 py-20 text-center">
+    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-copper/10 text-copper" aria-hidden="true">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+    </div>
+    <h3 class="font-serif text-lg font-bold text-foam sm:text-xl">A primeira edição está em preparação</h3>
+    <p class="mx-auto mt-2 max-w-sm text-xs text-foam/50 sm:text-sm">Os primeiros ensaios estão sendo escritos. Assine o boletim e receba a edição no dia em que ela sair.</p>
+    <div class="mt-6">
+      <button type="button" data-amarra-dialog-open class="rounded-lg bg-foam px-4 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90">Assinar Boletim</button>
+    </div>
+  </div>
+  {{ else }}
   <div class="rounded-2xl border border-foam/10 bg-foam/[0.03] p-8 py-20 text-center">
     <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-foam/5 text-foam/40" aria-hidden="true">
       <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
@@ -25,6 +37,7 @@
       <a href="/" class="rounded-lg border border-foam/20 px-4 py-2 text-xs font-semibold transition-colors hover:bg-foam/5">Limpar Filtros de Busca</a>
     </div>
   </div>
+  {{ end }}
   {{ else }}
   <div class="space-y-12">
     {{ if .Lead }}

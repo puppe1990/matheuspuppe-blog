@@ -33,6 +33,7 @@ type Store interface {
 	UpsertArticle(ctx context.Context, article models.Article) (int64, error)
 	IncrementArticleViews(ctx context.Context, id int64, delta int) error
 	AddArticleClaps(ctx context.Context, id int64, delta int) (int, error)
+	PruneCatalog(ctx context.Context, articleSlugs, authorSlugs []string) error
 
 	ListAuthors(ctx context.Context) ([]models.Author, error)
 	FindAuthorBySlug(ctx context.Context, slug string) (models.Author, error)

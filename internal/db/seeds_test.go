@@ -2,9 +2,12 @@ package db
 
 import (
 	"context"
+	"errors"
 	"testing"
+	"time"
 
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
+	"github.com/puppe1990/matheuspuppe-blog/internal/testdata"
 )
 
 func newTestStore(t *testing.T) *store.SQLiteStore {
@@ -17,101 +20,108 @@ func newTestStore(t *testing.T) *store.SQLiteStore {
 	return s
 }
 
-func TestRunSeeds_PublishesTheCatalog(t *testing.T) {
+func TestRunSeeds_PublishesOnlyTheColumnist(t *testing.T) {
 	s := newTestStore(t)
 	if err := RunSeeds(s); err != nil {
 		t.Fatal(err)
 	}
 	ctx := context.Background()
-
-	articles, err := s.ListArticles(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(articles) != 6 {
-		t.Fatalf("got %d articles, want 6", len(articles))
-	}
-	// Newest first: the lead essay is the March 28 agents piece.
-	if articles[0].Slug != "fronteira-modelos-raciocinio-agentes-autonomos" {
-		t.Fatalf("first article = %q", articles[0].Slug)
-	}
-	if articles[0].Author.Name != "Dra. Camila Siqueira" {
-		t.Fatalf("author join = %+v", articles[0].Author)
-	}
-	if len(articles[0].Blocks) == 0 || len(articles[0].Tags) == 0 {
-		t.Fatalf("article content missing: blocks %d tags %d", len(articles[0].Blocks), len(articles[0].Tags))
-	}
 
 	authors, err := s.ListAuthors(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(authors) != 6 {
-		t.Fatalf("got %d authors, want 6", len(authors))
+	if len(authors) != 1 {
+		t.Fatalf("authors = %d, want only the columnist", len(authors))
 	}
-	for _, author := range authors {
-		if author.ArticleCount == 0 {
-			t.Fatalf("author %q has no articles", author.Slug)
-		}
+	author := authors[0]
+	if author.Slug != "matheus-puppe" || author.Name != "Matheus Puppe" {
+		t.Fatalf("author = %+v", author)
+	}
+	if author.AvatarURL != "/static/img/author-matheus.jpg" {
+		t.Fatalf("avatar = %q", author.AvatarURL)
+	}
+	if author.ArticleCount != 0 {
+		t.Fatalf("article count = %d, want 0", author.ArticleCount)
 	}
 
-	lead, err := s.FindArticleBySlug(ctx, articles[0].Slug)
+	articles, err := s.ListArticles(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	comments, err := s.ListComments(ctx, lead.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(comments) != 2 {
-		t.Fatalf("got %d comments on the lead essay, want 2", len(comments))
-	}
-	rust, err := s.FindArticleBySlug(ctx, "go-para-rust-sistemas-criticos-2026")
-	if err != nil {
-		t.Fatal(err)
-	}
-	comments, err = s.ListComments(ctx, rust.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(comments) != 1 {
-		t.Fatalf("got %d comments on the rust essay, want 1", len(comments))
+	if len(articles) != 0 {
+		t.Fatalf("articles = %d, want an empty catalog", len(articles))
 	}
 }
 
-func TestRunSeeds_IdempotentAndKeepsCounters(t *testing.T) {
+func TestRunSeeds_PrunesCatalogRowsThatLeftTheSeeds(t *testing.T) {
 	s := newTestStore(t)
 	if err := RunSeeds(s); err != nil {
 		t.Fatal(err)
 	}
 	ctx := context.Background()
 
-	lead, err := s.FindArticleBySlug(ctx, "fronteira-modelos-raciocinio-agentes-autonomos")
+	// An orphan catalog row written outside the seeds: author, essay and a
+	// reader comment hanging on the essay.
+	f := testdata.New()
+	orphanAuthor := testdata.Author(f, 7)
+	authorID, err := s.UpsertAuthor(ctx, orphanAuthor)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.AddArticleClaps(ctx, lead.ID, 10); err != nil {
+	orphanAuthor.ID = authorID
+	orphanEssay := testdata.Article(f, 7, orphanAuthor, time.Now().UTC().AddDate(0, 0, -1))
+	essayID, err := s.UpsertArticle(ctx, orphanEssay)
+	if err != nil {
 		t.Fatal(err)
 	}
-	if err := s.IncrementArticleViews(ctx, lead.ID, 99); err != nil {
+	if _, err := s.AddComment(ctx, testdata.Comment(f, essayID)); err != nil {
 		t.Fatal(err)
 	}
 
 	if err := RunSeeds(s); err != nil {
 		t.Fatal(err)
 	}
-	leadAfter, err := s.FindArticleBySlug(ctx, lead.Slug)
+
+	articles, err := s.ListArticles(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if leadAfter.Claps != lead.Claps+10 || leadAfter.Views != lead.Views+99 {
-		t.Fatalf("counters reset: claps %d views %d", leadAfter.Claps, leadAfter.Views)
+	if len(articles) != 0 {
+		t.Fatalf("orphan essay survived the reseed: %d articles", len(articles))
 	}
-	comments, err := s.ListComments(ctx, lead.ID)
+	authors, err := s.ListAuthors(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(comments) != 2 {
-		t.Fatalf("reseed duplicated comments: %d", len(comments))
+	if len(authors) != 1 || authors[0].Slug != "matheus-puppe" {
+		t.Fatalf("orphan author survived the reseed: %+v", authors)
+	}
+	var comments int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM comments`).Scan(&comments); err != nil {
+		t.Fatal(err)
+	}
+	if comments != 0 {
+		t.Fatalf("comments of the removed essay survived: %d", comments)
+	}
+	if _, err := s.FindArticleBySlug(ctx, orphanEssay.Slug); !errors.Is(err, store.ErrNotFound) {
+		t.Fatalf("removed essay still resolves: %v", err)
+	}
+}
+
+func TestRunSeeds_Idempotent(t *testing.T) {
+	s := newTestStore(t)
+	if err := RunSeeds(s); err != nil {
+		t.Fatal(err)
+	}
+	if err := RunSeeds(s); err != nil {
+		t.Fatal(err)
+	}
+	authors, err := s.ListAuthors(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(authors) != 1 {
+		t.Fatalf("reseed duplicated the author: %d", len(authors))
 	}
 }

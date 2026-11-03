@@ -23,6 +23,7 @@ func getPage(t *testing.T, handler http.Handler, target string) *httptest.Respon
 
 func TestSobreHandler_RendersManifestoAndAuthors(t *testing.T) {
 	st := seedTestStore(t)
+	seedFixtureCatalog(t, st)
 	h := NewSobreHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
 	rr := getPage(t, h, "/sobre")
 	if rr.Code != http.StatusOK {
@@ -32,8 +33,7 @@ func TestSobreHandler_RendersManifestoAndAuthors(t *testing.T) {
 	for _, needle := range []string{
 		"Engenharia com profundidade",
 		"Corpo de Autores",
-		"Dra. Camila Siqueira",
-		"Helena Vance",
+		"Matheus Puppe",
 		"ensaios",
 	} {
 		if !strings.Contains(body, needle) {
@@ -44,18 +44,19 @@ func TestSobreHandler_RendersManifestoAndAuthors(t *testing.T) {
 
 func TestAuthorHandler_RendersColumnist(t *testing.T) {
 	st := seedTestStore(t)
+	seedFixtureCatalog(t, st)
 	h := NewAuthorHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
 	rr := httptest.NewRecorder()
-	h.Serve(rr, httptest.NewRequest(http.MethodGet, "/autor/camila-siqueira", nil), "camila-siqueira")
+	h.Serve(rr, httptest.NewRequest(http.MethodGet, "/autor/matheus-puppe", nil), "matheus-puppe")
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rr.Code)
 	}
 	body := rr.Body.String()
-	if !strings.Contains(body, "Dra. Camila Siqueira") {
+	if !strings.Contains(body, "Matheus Puppe") {
 		t.Errorf("body missing the columnist name")
 	}
-	if !strings.Contains(body, "A Nova Fronteira dos Agentes Autônomos") {
+	if !strings.Contains(body, "O Primeiro Ensaio") {
 		t.Errorf("body missing the columnist essay")
 	}
 }
@@ -122,6 +123,7 @@ func TestNewsletterHandler_RejectsInvalidEmail(t *testing.T) {
 
 func TestSitemapHandler_ServesCrawlersWithoutCookies(t *testing.T) {
 	st := seedTestStore(t)
+	seedFixtureCatalog(t, st)
 	h := NewSitemapHandler(st, testSite(), cais.Config{})
 	rr := getPage(t, h, "/sitemap.xml")
 	if rr.Code != http.StatusOK {
@@ -134,7 +136,7 @@ func TestSitemapHandler_ServesCrawlersWithoutCookies(t *testing.T) {
 		t.Fatalf("sitemap must not set cookies (#342)")
 	}
 	body := rr.Body.String()
-	if !strings.Contains(body, "https://sintaxe.example.com/artigo/fronteira-modelos-raciocinio-agentes-autonomos") {
+	if !strings.Contains(body, "https://sintaxe.example.com/artigo/primeiro-ensaio") {
 		t.Errorf("sitemap missing an article URL")
 	}
 	if !strings.Contains(body, "<lastmod>2026-03-28</lastmod>") {
@@ -158,6 +160,7 @@ func TestRobotsHandler_PointsToSitemap(t *testing.T) {
 
 func TestFeedHandler_ServesRSS(t *testing.T) {
 	st := seedTestStore(t)
+	seedFixtureCatalog(t, st)
 	h := NewFeedHandler(st, testSite(), cais.Config{})
 	rr := getPage(t, h, "/rss.xml")
 	if rr.Code != http.StatusOK {
@@ -167,7 +170,7 @@ func TestFeedHandler_ServesRSS(t *testing.T) {
 		t.Fatalf("Content-Type = %q", ct)
 	}
 	body := rr.Body.String()
-	if !strings.Contains(body, "<title>A Nova Fronteira dos Agentes Autônomos: Por Que Raciocínio Superou a Escala Pura</title>") {
+	if !strings.Contains(body, "<title>O Primeiro Ensaio</title>") {
 		t.Errorf("feed missing the lead essay item")
 	}
 	if strings.Count(body, "<item>") != 6 {
@@ -177,6 +180,7 @@ func TestFeedHandler_ServesRSS(t *testing.T) {
 
 func TestSitemapAndFeed_HideScheduledEssays(t *testing.T) {
 	st := seedTestStore(t)
+	seedFixtureCatalog(t, st)
 	scheduled := seedScheduledEssay(t, st)
 
 	sitemap := NewSitemapHandler(st, testSite(), cais.Config{})

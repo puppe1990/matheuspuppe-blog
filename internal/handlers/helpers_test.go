@@ -97,6 +97,83 @@ func seedScheduledEssay(t *testing.T, st store.Store) models.Article {
 	return article
 }
 
+func day(year int, month time.Month, dayOfMonth, hour int) time.Time {
+	return time.Date(year, month, dayOfMonth, hour, 0, 0, 0, time.UTC)
+}
+
+// seedFixtureCatalog gives handler tests six deterministic essays (one per
+// caderno) signed by the seeded columnist, plus the two starter comments on the
+// lead. The real catalog stays empty until the first edition is written.
+func seedFixtureCatalog(t *testing.T, st store.Store) models.Article {
+	t.Helper()
+	ctx := context.Background()
+	author, err := st.FindAuthorBySlug(ctx, "matheus-puppe")
+	if err != nil {
+		t.Fatalf("fixture catalog needs the seeded author: %v", err)
+	}
+
+	articles := []models.Article{
+		{
+			Slug:            "primeiro-ensaio",
+			Title:           "O Primeiro Ensaio",
+			Subtitle:        "Uma dissecação do sistema, do cais ao mar aberto.",
+			LeadParagraph:   "O primeiro parágrafo do ensaio principal.",
+			Category:        "IA & Modelos",
+			ReadTimeMinutes: 8,
+			PublishedAt:     day(2026, time.March, 28, 9),
+			Author:          author,
+			Tags:            []string{"Inteligência Artificial", "Arquitetura"},
+			Tier:            1,
+			Claps:           342,
+			Views:           4890,
+			Blocks: []models.ContentBlock{
+				{Type: "takeaways", Items: []string{
+					"Primeira conclusão do ensaio.",
+					"Segunda conclusão do ensaio.",
+					"Terceira conclusão do ensaio.",
+				}},
+				{Type: "heading2", Text: "O Problema Central"},
+				{Type: "paragraph", Text: "Um parágrafo de corpo com argumento técnico."},
+				{Type: "quote", Text: "A pergunta certa vale mais que a resposta rápida.", AuthorQuote: "Matheus Puppe"},
+				{Type: "code", Language: "go", Code: "func main() {}", Caption: "Um exemplo em Go"},
+				{Type: "interactive-benchmark", Benchmark: &models.BenchmarkData{
+					Title:       "Benchmark do Ensaio",
+					Description: "Comparativo entre abordagens.",
+					Metrics: []models.BenchmarkMetric{
+						{Label: "Precisão Lógica", ValueA: 42, ValueB: 88, Unit: "%"},
+					},
+				}},
+			},
+		},
+		{Slug: "ensaio-de-sistemas", Title: "Ensaio de Sistemas", Subtitle: "Fila, retry e previsibilidade.", LeadParagraph: "Um sistema previsível começa por métricas honestas.", Category: "Engenharia de Sistemas", ReadTimeMinutes: 6, PublishedAt: day(2026, time.March, 24, 14), Author: author, Tags: []string{"Sistemas"}, Tier: 2},
+		{Slug: "ensaio-de-hardware", Title: "Ensaio de Hardware", Subtitle: "Telemetria de um adaptador flaky.", LeadParagraph: "Chips e monitores têm histórias.", Category: "Hardware & Chips", ReadTimeMinutes: 7, PublishedAt: day(2026, time.March, 20, 11), Author: author, Tags: []string{"Hardware"}, Tier: 2},
+		{Slug: "ensaio-de-design", Title: "Ensaio de Design", Subtitle: "Slop visual e tipografia.", LeadParagraph: "Interfaces com intenção.", Category: "Design & UX", ReadTimeMinutes: 5, PublishedAt: day(2026, time.March, 16, 16), Author: author, Tags: []string{"Design"}, Tier: 3},
+		{Slug: "ensaio-de-seguranca", Title: "Ensaio de Segurança", Subtitle: "Criptografia pós-quântica na prática.", LeadParagraph: "Chaves maiores mudam o handshake.", Category: "Segurança & Criptografia", ReadTimeMinutes: 6, PublishedAt: day(2026, time.March, 11, 13), Author: author, Tags: []string{"Segurança", "Criptografia"}, Tier: 3},
+		{Slug: "ensaio-de-opiniao", Title: "Ensaio de Opinião", Subtitle: "O ofício de escrever ensaios.", LeadParagraph: "Opinião com profundidade.", Category: "Opinião & Futuro", ReadTimeMinutes: 5, PublishedAt: day(2026, time.March, 5, 8), Author: author, Tags: []string{"Carreira"}, Tier: 3},
+	}
+	for i := range articles {
+		articles[i].CoverImage = "/static/img/tech_ai_agents_lead.jpg"
+		if _, err := st.UpsertArticle(ctx, articles[i]); err != nil {
+			t.Fatalf("fixture article %q: %v", articles[i].Slug, err)
+		}
+	}
+
+	lead, err := st.FindArticleBySlug(ctx, "primeiro-ensaio")
+	if err != nil {
+		t.Fatalf("fixture lead: %v", err)
+	}
+	starter := []models.Comment{
+		{ArticleID: lead.ID, AuthorName: "Leitor Um", AuthorRole: "Engenheiro de ML", Content: "Primeiro comentário da comunidade.", CreatedAt: day(2026, time.March, 28, 14), Claps: 18},
+		{ArticleID: lead.ID, AuthorName: "Leitor Dois", AuthorRole: "Tech Lead", Content: "Segundo comentário da comunidade.", CreatedAt: day(2026, time.March, 29, 10), Claps: 9},
+	}
+	for _, comment := range starter {
+		if _, err := st.AddComment(ctx, comment); err != nil {
+			t.Fatalf("fixture comment: %v", err)
+		}
+	}
+	return lead
+}
+
 // postForm builds the request and the recorder, so handler tests can call
 // handlers directly without the router wiring.
 func postForm(t *testing.T, target string, form url.Values, cookies ...*http.Cookie) (*http.Request, *httptest.ResponseRecorder) {

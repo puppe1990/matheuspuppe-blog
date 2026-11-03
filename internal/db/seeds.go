@@ -10,7 +10,9 @@ import (
 
 // RunSeeds upserts the Sintaxe editorial catalog: authors, essays and starter
 // comments. Idempotent by design — content refreshes by slug while live reader
-// counters (claps, views) and reader-written comments survive a reseed.
+// counters (claps, views) and reader-written comments survive a reseed. The
+// seed set is the source of truth: catalog rows that left the code are pruned
+// (with their comments) in the same run.
 func RunSeeds(s store.Store) error {
 	ctx := context.Background()
 
@@ -25,7 +27,19 @@ func RunSeeds(s store.Store) error {
 		return err
 	}
 
+	if err := s.PruneCatalog(ctx, slugsOf(articleIDs), slugsOf(authorIDs)); err != nil {
+		return fmt.Errorf("prune catalog: %w", err)
+	}
+
 	return seedStarterComments(ctx, s, articleIDs)
+}
+
+func slugsOf(ids map[string]int64) []string {
+	slugs := make([]string, 0, len(ids))
+	for slug := range ids {
+		slugs = append(slugs, slug)
+	}
+	return slugs
 }
 
 func upsertSeedAuthors(ctx context.Context, s store.Store) (map[string]int64, error) {

@@ -14,11 +14,12 @@ import (
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
 )
 
-const leadSlug = "fronteira-modelos-raciocinio-agentes-autonomos"
+const leadSlug = "primeiro-ensaio"
 
 func newArticleHandler(t *testing.T) (*ArticleHandler, store.Store) {
 	t.Helper()
 	st := seedTestStore(t)
+	seedFixtureCatalog(t, st)
 	return NewArticleHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{}), st
 }
 
@@ -38,14 +39,14 @@ func TestArticleHandler_ShowRendersEssay(t *testing.T) {
 	}
 	body := rr.Body.String()
 	for _, needle := range []string{
-		"A Nova Fronteira dos Agentes Autônomos",
-		"Uma dissecação arquitetural do test-time compute",
-		"Dra. Camila Siqueira",
+		"O Primeiro Ensaio",
+		"Uma dissecação do sistema, do cais ao mar aberto.",
+		"Matheus Puppe",
 		"Conclusões Fundamentais &amp; Invariants",
-		"O Esgotamento do Pré-Treino Passivo",
+		"O Problema Central",
 		"#Inteligência Artificial",
 		"Discussão da Comunidade Técnica",
-		"Thiago Nogueira",
+		"Leitor Um",
 	} {
 		if !strings.Contains(body, needle) {
 			t.Errorf("body missing %q", needle)
@@ -55,7 +56,7 @@ func TestArticleHandler_ShowRendersEssay(t *testing.T) {
 
 func TestArticleHandler_ShowRendersBenchmarkBlock(t *testing.T) {
 	body := showArticle(t, leadSlug).Body.String()
-	if !strings.Contains(body, "SWE-Bench Pro") {
+	if !strings.Contains(body, "Benchmark do Ensaio") {
 		t.Errorf("body missing the interactive benchmark block")
 	}
 	if !strings.Contains(body, "Precisão Lógica") || !strings.Contains(body, "88%") {
@@ -90,7 +91,7 @@ func TestArticleHandler_ShowMissingIs404(t *testing.T) {
 func TestArticleHandler_CommentPostPersists(t *testing.T) {
 	h, st := newArticleHandler(t)
 	form := url.Values{
-		"nome":     {"Thiago Nogueira"},
+		"nome":     {"Comentarista Teste"},
 		"cargo":    {"Engenheiro de ML"},
 		"conteudo": {"Excelente análise sobre verificação formal de esquemas."},
 	}
@@ -114,7 +115,7 @@ func TestArticleHandler_CommentPostPersists(t *testing.T) {
 	if len(comments) != 3 {
 		t.Fatalf("comments = %d, want 3 (2 seeded + 1 new)", len(comments))
 	}
-	if comments[0].AuthorName != "Thiago Nogueira" {
+	if comments[0].AuthorName != "Comentarista Teste" {
 		t.Fatalf("newest comment = %+v", comments[0])
 	}
 }
