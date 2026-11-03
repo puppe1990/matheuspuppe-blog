@@ -181,29 +181,6 @@
     if (next) next.value = window.location.pathname + window.location.search;
   });
 
-  /* Simulator: live labels while dragging, server re-render on release. */
-  function formatReqs(value) {
-    return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  }
-
-  function syncLabLabels() {
-    var reqs = document.querySelector("[data-lab-reqs]");
-    var reqsLabel = document.querySelector("[data-lab-reqs-value]");
-    if (reqs && reqsLabel) reqsLabel.textContent = formatReqs(reqs.value) + " req/s";
-    var payload = document.querySelector("[data-lab-payload]");
-    var payloadLabel = document.querySelector("[data-lab-payload-value]");
-    if (payload && payloadLabel) payloadLabel.textContent = payload.value + " KB / requisição";
-  }
-
-  on(document, "input", "[data-lab-reqs], [data-lab-payload]", function () {
-    syncLabLabels();
-  });
-
-  on(document, "change", "[data-lab-reqs], [data-lab-payload]", function (input) {
-    var form = input.form;
-    if (form) form.requestSubmit();
-  });
-
   /* Metric bars ship widthless; JS paints the percentage once the DOM exists
      (and again after every Drive morph). */
   function paintBars() {
@@ -218,7 +195,6 @@
     paintBars();
     applyFontSize(fontSize || "normal");
     updateProgress();
-    syncLabLabels();
   });
   applyFontSize(fontSize || "normal");
 })();

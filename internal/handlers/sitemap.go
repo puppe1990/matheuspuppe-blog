@@ -45,7 +45,7 @@ func (h *SitemapHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	base := strings.TrimSuffix(h.site.AppURL, "/")
 
 	set := urlSet{Xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}
-	for _, path := range []string{"/", "/laboratorio", "/sobre", "/salvos"} {
+	for _, path := range []string{"/", "/sobre", "/salvos"} {
 		set.URLs = append(set.URLs, urlEntry{Loc: base + path})
 	}
 	for _, article := range articles {

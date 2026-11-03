@@ -20,7 +20,7 @@ Before writing production code:
 | -------- | ---------------------------------------------------------------------------------------------------- |
 | 1        | **Small units** — funções ~4–20 linhas; arquivos alvo 200–300, teto ~500                             |
 | 2        | **SRP** — uma razão de mudança por pacote                                                            |
-| 3        | **Greppable names** — substantivos de domínio (`editorial`, `benchmark`, `salvos`); evite `utils`    |
+| 3        | **Greppable names** — substantivos de domínio (`editorial`, `salvos`, `autor`); evite `utils`        |
 | 4        | **Comments = WHY** — Drive vs full HTML, cookie, Tailwind purge, seeds idempotentes; sem narrar WHAT |
 | 5        | **Inject deps** — handlers recebem `Store`, `*view.Renderer`, `cais.Config` via construtor           |
 | 6        | **Early returns** — máximo ~2 níveis de indentação                                                   |
@@ -29,14 +29,14 @@ Before writing production code:
 
 ## Layout
 
-| Path                  | Responsabilidade                                                                                                          |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `internal/editorial/` | Filtros, segmentação em tiers, tempo de leitura, bookmarks, datas pt-BR                                                   |
-| `internal/benchmark/` | Curvas do simulador de runtimes (puro, determinístico)                                                                    |
-| `internal/db/`        | Conteúdo real + `RunSeeds` idempotente e reconciliador (roda no boot; não zera claps/views; remove linhas fora dos seeds) |
-| `internal/store/`     | SQLite + migrations (`authors`, `articles`, `comments`, `subscribers`)                                                    |
-| `internal/handlers/`  | Handlers HTML; `viewdata.go` tem `ArticleView`, cookie de salvos e `next`                                                 |
-| `web/templates/`      | `layouts/app.html`, `partials/*` (flat only), `pages/*`                                                                   |
+| Path                  | Responsabilidade                                                        |
+| --------------------- | ----------------------------------------------------------------------- |
+| `internal/editorial/` | Filtros, segmentação em tiers, tempo de leitura, bookmarks, datas pt-BR |
+
+| `internal/db/` | Conteúdo real + `RunSeeds` idempotente e reconciliador (roda no boot; não zera claps/views; remove linhas fora dos seeds) |
+| `internal/store/` | SQLite + migrations (`authors`, `articles`, `comments`, `subscribers`) |
+| `internal/handlers/` | Handlers HTML; `viewdata.go` tem `ArticleView`, cookie de salvos e `next` |
+| `web/templates/` | `layouts/app.html`, `partials/*` (flat only), `pages/*` |
 
 Markers de geradores (não remover): `registerRoutes`, `Close() error`, `// cais:seeds`, `// cais:live-views`.
 

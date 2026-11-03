@@ -57,7 +57,6 @@
           </a>
           <nav aria-label="Navegação principal" amarra-hook="nav" data-amarra-nav-on="text-foam" data-amarra-nav-off="text-foam/60 hover:text-foam" class="hidden items-center gap-7 text-sm md:flex">
             <a href="/" class="border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "artigos" }}border-copper text-foam{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">{{ t "nav.artigos" }}</a>
-            <a href="/laboratorio" class="border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "playground" }}border-copper text-foam{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">{{ t "nav.playground" }}</a>
             <a href="/salvos" class="flex items-baseline gap-1.5 border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "salvos" }}border-copper text-foam{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">
               <span>{{ t "nav.salvos" }}</span>
               {{ if .SavedCount }}<span class="text-xs tabular-nums text-foam/55">{{ .SavedCount }}</span>{{ end }}
@@ -112,9 +111,9 @@
             <div class="space-y-3 md:col-span-4">
               <h4 class="text-[13px] font-medium text-foam">Publicação</h4>
               <ul class="space-y-2 text-[13px]">
-                <li><a class="transition-colors hover:text-foam" href="/laboratorio">Simulador de runtimes</a></li>
                 <li><a class="transition-colors hover:text-foam" href="/sobre">Sobre o jornal</a></li>
                 <li><a class="transition-colors hover:text-foam" href="/salvos">Artigos salvos</a></li>
+                <li><a class="transition-colors hover:text-foam" href="/rss.xml">Assinar o RSS</a></li>
               </ul>
             </div>
           </div>

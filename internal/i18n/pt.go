@@ -7,7 +7,6 @@ var ptMessages = map[string]string{
 	"layout.theme_dark":  "Modo escuro",
 	"layout.newsletter":  "Assinar boletim",
 	"nav.artigos":        "Artigos",
-	"nav.playground":     "Laboratório",
 	"nav.salvos":         "Salvos",
 	"nav.sobre":          "Sobre a redação",
 	"footer.mission":     "Publicação independente de tecnologia focada em arquitetura de software, inteligência artificial, engenharia de sistemas e ciência dos computadores.",

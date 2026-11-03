@@ -52,20 +52,6 @@
     </section>
     {{ end }}
 
-    {{ if not .Filtering }}
-    <div class="flex flex-col items-start justify-between gap-4 rounded-xl border border-foam/10 p-6 sm:flex-row sm:items-center">
-      <div class="space-y-1">
-        <p class="text-xs text-foam/55">Laboratório</p>
-        <h3 class="font-serif text-xl font-medium tracking-tight text-foam">Simulador de runtimes</h3>
-        <p class="max-w-lg text-[13px] leading-6 text-foam/60">Compare latência p99, memória e CPU de Rust, Go, Node e Python sob a mesma carga.</p>
-      </div>
-      <a href="/laboratorio" class="inline-flex items-center gap-1.5 text-[13px] font-medium text-foam/80 transition-colors hover:text-foam">
-        <span>Abrir simulador</span>
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" /></svg>
-      </a>
-    </div>
-    {{ end }}
-
     {{ if .Grid }}
     <section aria-label="Mais ensaios">
       <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">

@@ -142,6 +142,9 @@ func TestSitemapHandler_ServesCrawlersWithoutCookies(t *testing.T) {
 	if !strings.Contains(body, "<lastmod>2026-03-28</lastmod>") {
 		t.Errorf("sitemap missing lastmod")
 	}
+	if strings.Contains(body, "/laboratorio") {
+		t.Errorf("sitemap still lists the removed laboratory route")
+	}
 }
 
 func TestRobotsHandler_PointsToSitemap(t *testing.T) {
