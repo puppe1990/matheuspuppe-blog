@@ -4,7 +4,7 @@
   "description": "Publicação editorial de tecnologia e engenharia de software com análises sobre inteligência artificial, sistemas distribuídos, arquitetura e hardware.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0c0a09",
+  "background_color": "#161513",
   "theme_color": "#f59e0b",
   "orientation": "portrait-primary",
   "icons": [
