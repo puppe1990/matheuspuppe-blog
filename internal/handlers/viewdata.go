@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	"github.com/puppe1990/amarra-cais/pkg/cais/meta"
 
 	"github.com/puppe1990/matheuspuppe-blog/internal/editorial"
+	"github.com/puppe1990/matheuspuppe-blog/internal/highlight"
 	"github.com/puppe1990/matheuspuppe-blog/internal/models"
 )
 
@@ -189,6 +191,28 @@ type ArticleView struct {
 	CommentURL    string
 	CanonicalSlug string
 	CategoryLabel string
+	// Blocks shadows Article.Blocks with the reader-ready version (code
+	// highlighted server-side).
+	Blocks []BlockView
+}
+
+// BlockView pré-renderiza o que o template não deve computar; hoje, só o HTML
+// com highlight dos blocos de código.
+type BlockView struct {
+	models.ContentBlock
+	CodeHTML template.HTML
+}
+
+func newBlockViews(blocks []models.ContentBlock) []BlockView {
+	views := make([]BlockView, len(blocks))
+	for i, block := range blocks {
+		view := BlockView{ContentBlock: block}
+		if block.Type == "code" {
+			view.CodeHTML = highlight.Code(block.Code, block.Language)
+		}
+		views[i] = view
+	}
+	return views
 }
 
 func newArticleView(article models.Article, saved []string, locale string) ArticleView {
@@ -207,6 +231,7 @@ func newArticleView(article models.Article, saved []string, locale string) Artic
 		CommentURL:    url + "/comentarios",
 		CanonicalSlug: canonical,
 		CategoryLabel: editorial.CategoryLabel(localized.Category, locale),
+		Blocks:        newBlockViews(localized.Blocks),
 	}
 }
 

@@ -22,6 +22,10 @@ O Sintaxe é bilíngue por caminho: a raiz é pt-BR e `/en` é a edição ingles
 
 Para publicar a tradução de um ensaio novo, preencha os campos `*EN` (inclusive `SlugEN`) no arquivo `internal/db/content_articles_*.go` — a edição inglesa entra no mesmo deploy.
 
+## Highlight do código
+
+Os blocos de código são coloridos no servidor com [chroma](https://github.com/alecthomas/chroma) (`internal/highlight`), emitindo classes (`.kd`, `.s`, `.c`…) e nenhum estilo inline; a paleta vive no `input.css` (keywords em cobre, strings em sálvia, números em âmbar, comentários apagados) e acompanha o tema claro/escuro. Sem JS de terceiros, sem flash de código sem cor e sem mexer na CSP.
+
 ## Citar código do repositório
 
 Blocos de código e trechos citados apontam para o repo público: `SourceURL` (link `blob/<commit>/arquivo#Lx-Ly`) e `SourceLabel` (`internal/app/app.go:149`) no `models.ContentBlock`. Parágrafos com `SourceURL` ganham o link no fim (é assim que o ensaio mostra `github.com/puppe1990/epub-translator`), e a atribuição de uma citação leva o mesmo link depois do travessão.

@@ -3,6 +3,7 @@ module github.com/puppe1990/matheuspuppe-blog
 go 1.26.4
 
 require (
+	github.com/alecthomas/chroma/v2 v2.27.0
 	github.com/brianvoe/gofakeit/v7 v7.17.1
 	github.com/puppe1990/amarra-cais v0.26.0
 	golang.org/x/image v0.35.0
@@ -11,6 +12,7 @@ require (
 
 require (
 	github.com/coder/websocket v1.8.14 // indirect
+	github.com/dlclark/regexp2/v2 v2.2.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

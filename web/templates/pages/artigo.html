@@ -120,7 +120,7 @@
           <span data-copy-label>{{ t "artigo.copy" }}</span>
         </button>
       </div>
-      <pre class="overflow-x-auto bg-tide p-4 text-[13px] leading-6 text-foam/90 sm:p-5"><code id="code-block-{{ $i }}">{{ $block.Code }}</code></pre>
+      <pre class="amarra-code overflow-x-auto bg-tide p-4 text-[13px] leading-6 text-foam/90 sm:p-5"><code id="code-block-{{ $i }}">{{ $block.CodeHTML }}</code></pre>
       {{ if or $block.Caption $block.SourceURL }}
       <div class="flex flex-wrap items-center justify-between gap-2 border-t border-foam/10 bg-foam/5 px-4 py-2 text-xs text-foam/60">
         <span>{{ $block.Caption }}</span>

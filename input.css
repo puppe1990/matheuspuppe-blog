@@ -14,6 +14,8 @@
     --amarra-coral: 224 122 74;
     --amarra-danger: 229 72 77;
     --amarra-success: 76 195 138;
+    --amarra-code-string: 147 168 124; /* sage */
+    --amarra-code-number: 205 158 92; /* amber */
   }
 
   html.light {
@@ -25,6 +27,8 @@
     --amarra-coral: 194 65 12;
     --amarra-danger: 220 38 38;
     --amarra-success: 22 163 74;
+    --amarra-code-string: 63 111 74; /* forest on paper */
+    --amarra-code-number: 154 82 14; /* burnt on paper */
   }
 
   body {
@@ -220,5 +224,104 @@
     font-size: 0.75rem;
     font-weight: 500;
     box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
+  }
+}
+
+@layer components {
+  /* Syntax highlighting: chroma classes (internal/highlight). One accent
+     (copper keywords), sage strings, warm numbers, faded comments. */
+  .amarra-code .c,
+  .amarra-code .ch,
+  .amarra-code .cm,
+  .amarra-code .c1,
+  .amarra-code .cs,
+  .amarra-code .cp,
+  .amarra-code .cpf,
+  .amarra-code .cr,
+  .amarra-code .cd {
+    @apply italic;
+    color: rgb(var(--amarra-foam) / 0.42);
+  }
+
+  .amarra-code .k,
+  .amarra-code .kc,
+  .amarra-code .kd,
+  .amarra-code .kn,
+  .amarra-code .kp,
+  .amarra-code .kr,
+  .amarra-code .kt,
+  .amarra-code .ow {
+    color: rgb(var(--amarra-copper));
+  }
+
+  .amarra-code .s,
+  .amarra-code .s1,
+  .amarra-code .s2,
+  .amarra-code .sb,
+  .amarra-code .sc,
+  .amarra-code .sd,
+  .amarra-code .se,
+  .amarra-code .sh,
+  .amarra-code .si,
+  .amarra-code .sr,
+  .amarra-code .ss,
+  .amarra-code .sx,
+  .amarra-code .dl {
+    color: rgb(var(--amarra-code-string));
+  }
+
+  .amarra-code .m,
+  .amarra-code .mb,
+  .amarra-code .mf,
+  .amarra-code .mh,
+  .amarra-code .mi,
+  .amarra-code .mo,
+  .amarra-code .il {
+    color: rgb(var(--amarra-code-number));
+  }
+
+  .amarra-code .nf,
+  .amarra-code .nb,
+  .amarra-code .nc,
+  .amarra-code .nn,
+  .amarra-code .nd,
+  .amarra-code .ne,
+  .amarra-code .nl,
+  .amarra-code .nt,
+  .amarra-code .no,
+  .amarra-code .na {
+    color: rgb(var(--amarra-foam) / 0.95);
+  }
+
+  .amarra-code .nv,
+  .amarra-code .nx,
+  .amarra-code .py {
+    color: rgb(var(--amarra-foam) / 0.85);
+  }
+
+  .amarra-code .o {
+    color: rgb(var(--amarra-foam) / 0.6);
+  }
+
+  .amarra-code .err,
+  .amarra-code .gd {
+    color: rgb(var(--amarra-danger));
+  }
+
+  .amarra-code .gi {
+    color: rgb(var(--amarra-success));
+  }
+
+  .amarra-code .gh,
+  .amarra-code .gu {
+    color: rgb(var(--amarra-copper));
+  }
+
+  .amarra-code .ge {
+    @apply italic;
+  }
+
+  .amarra-code .gs {
+    @apply font-semibold;
   }
 }

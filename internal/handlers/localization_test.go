@@ -124,6 +124,10 @@ func TestArticle_PortugueseTogglePointsToEnglish(t *testing.T) {
 	if !strings.Contains(rec.Body.String(), `>internal/app/app.go:149</a>`) {
 		t.Fatal("code block lost the source label")
 	}
+	// Code is highlighted on the server: chroma classes travel with the page.
+	if !strings.Contains(rec.Body.String(), `class="kd">func`) {
+		t.Fatal("code block rendered without syntax highlighting")
+	}
 }
 
 func TestArticle_WithoutTranslationHasNoToggle(t *testing.T) {
