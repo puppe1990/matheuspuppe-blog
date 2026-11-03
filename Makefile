@@ -23,14 +23,14 @@ pre-commit-install:
 
 ci: test lint format-check
 
+og:
+	go run ./cmd/genog -out web/static/og.png
+
 css:
 	npx tailwindcss -i $(CSS_IN) -o $(CSS_OUT) --minify
 
 css-watch:
 	npx tailwindcss -i $(CSS_IN) -o $(CSS_OUT) --minify --watch
-
-og:
-	go run ./cmd/genog -out web/static/og.png
 
 build: css
 	CGO_ENABLED=0 go build -ldflags="-s -w" -o $(BIN) ./cmd/server

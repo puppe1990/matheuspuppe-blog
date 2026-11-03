@@ -59,12 +59,12 @@ go test ./... -race -count=1
 
 ## Estrutura
 
-| Path                  | Responsabilidade                                     |
-| --------------------- | ---------------------------------------------------- |
-| `cmd/server/`         | Entry point (bootstrap + seeds + devreload)          |
-| `internal/app/`       | Bootstrap, `registerRoutes`, 404 desenhado           |
-| `internal/handlers/`  | HTTP handlers (`view.Write`) + view-models           |
-| `internal/editorial/` | Regras editoriais puras (filtros, tiers, formatação) |
+| Path                  | Responsabilidade                                       |
+| --------------------- | ------------------------------------------------------ |
+| `cmd/server/`         | Entry point (bootstrap + seeds + devreload)            |
+| `internal/app/`       | Bootstrap, `registerRoutes`, 404 desenhado             |
+| `internal/handlers/`  | HTTP handlers (`view.Write`) + view-models             |
+| `internal/editorial/` | Regras editoriais puras (filtros, tiers, formatação)   |
 | `internal/ogcard/`    | PNG 1200×630 de compartilhamento (capa e `/og/{slug}`) |
 
 | `internal/models/` | Row structs (SQL) e payloads |
