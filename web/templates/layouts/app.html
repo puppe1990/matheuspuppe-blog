@@ -78,18 +78,18 @@
             <a href="{{ $home }}" class="border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "artigos" }}border-copper text-foam{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">{{ t "nav.artigos" }}</a>
             <a href="{{ $saved }}" class="flex items-baseline gap-1.5 border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "salvos" }}border-copper text-foam{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">
               <span>{{ t "nav.salvos" }}</span>
-              {{ if .SavedCount }}<span class="text-xs tabular-nums text-foam/55">{{ .SavedCount }}</span>{{ end }}
+              <span data-saved-count class="text-xs tabular-nums text-foam/55 {{ if not .SavedCount }}hidden{{ end }}">{{ .SavedCount }}</span>
             </a>
             <a href="{{ $about }}" class="border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "sobre" }}border-copper text-foam{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">{{ t "nav.sobre" }}</a>
           </nav>
           <div class="flex items-center gap-2 sm:gap-3">
             <div class="flex items-center rounded-lg border border-foam/10 p-0.5 text-xs font-medium" role="group" aria-label="Idioma / Language">
               {{ if eq .Lang "en" }}
-              <a href="{{ .AltURL }}" hreflang="pt-BR" class="rounded-md px-2.5 py-2.5 text-foam/60 transition-colors hover:bg-foam/5 hover:text-foam sm:px-3">PT</a>
+              <a href="{{ .AltURL }}" hreflang="pt-BR" data-amarra-skip class="rounded-md px-2.5 py-2.5 text-foam/60 transition-colors hover:bg-foam/5 hover:text-foam sm:px-3">PT</a>
               <span class="rounded-md bg-foam/10 px-2.5 py-2.5 text-foam sm:px-3" aria-current="true">EN</span>
               {{ else }}
               <span class="rounded-md bg-foam/10 px-2.5 py-2.5 text-foam sm:px-3" aria-current="true">PT</span>
-              {{ if .AltURL }}<a href="{{ .AltURL }}" hreflang="en" class="rounded-md px-2.5 py-2.5 text-foam/60 transition-colors hover:bg-foam/5 hover:text-foam sm:px-3">EN</a>{{ end }}
+              {{ if .AltURL }}<a href="{{ .AltURL }}" hreflang="en" data-amarra-skip class="rounded-md px-2.5 py-2.5 text-foam/60 transition-colors hover:bg-foam/5 hover:text-foam sm:px-3">EN</a>{{ end }}
               {{ end }}
             </div>
             <button type="button" class="rounded-lg p-2 text-foam/60 transition-colors hover:bg-foam/5 hover:text-foam" amarra-hook="theme" aria-label="{{ t "layout.theme_light" }}" title="{{ t "layout.theme_light" }}" aria-pressed="false" data-amarra-theme-key="amarra-theme" data-amarra-theme-color="#f7f4ee" data-amarra-theme-color-off="#161513" data-amarra-theme-on-label="{{ t "layout.theme_dark" }}" data-amarra-theme-off-label="{{ t "layout.theme_light" }}">

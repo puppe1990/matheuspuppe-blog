@@ -114,6 +114,14 @@ func TestArticle_PortugueseTogglePointsToEnglish(t *testing.T) {
 	if !strings.Contains(rec.Body.String(), `href="/en/artigo/first-essay"`) {
 		t.Fatalf("portuguese article lost the EN toggle: %s", toggleSnippet(rec.Body.String()))
 	}
+	// The header cannot be morfed by Drive, so switching language needs a full
+	// visit; without data-amarra-skip the chrome keeps the old language (#drive).
+	if !strings.Contains(rec.Body.String(), `hreflang="en" data-amarra-skip`) {
+		t.Fatal("language toggle lost data-amarra-skip and would morph into a stale header")
+	}
+	if !strings.Contains(rec.Body.String(), `data-saved-count`) {
+		t.Fatal("header saved counter is missing its morph hook")
+	}
 	if !strings.Contains(rec.Body.String(), `aria-current="true">PT</span>`) {
 		t.Fatal("portuguese edition does not mark PT as the active language")
 	}

@@ -181,6 +181,23 @@
     if (els.label) els.label.textContent = bodyText("audioPlaying", "Tocando");
   });
 
+  /* Drive morfs only #amarra-main, so the header counter would keep the old
+     number after a bookmark toggle; adjust it from the button's current state
+     and let the next full visit render the server value again. */
+  function shiftSavedCount(delta) {
+    var badge = document.querySelector("[data-saved-count]");
+    if (!badge) return;
+    var current = parseInt(badge.textContent.trim(), 10);
+    if (isNaN(current)) current = 0;
+    var next = Math.max(0, current + delta);
+    badge.textContent = String(next);
+    badge.classList.toggle("hidden", next === 0);
+  }
+
+  on(document, "click", "[data-saved]", function (button) {
+    shiftSavedCount(button.getAttribute("data-saved") === "true" ? -1 : 1);
+  });
+
   /* Newsletter dialog: remember where the reader was so the flash lands there. */
   on(document, "click", "[data-amarra-dialog-open]", function () {
     var next = document.querySelector("[data-newsletter-next]");
