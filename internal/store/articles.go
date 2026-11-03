@@ -1,0 +1,167 @@
+package store
+
+import (
+	"context"
+	"database/sql"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/puppe1990/matheuspuppe-blog/internal/models"
+)
+
+// articleSelect joins the author so listing pages render bylines without a
+// second query per card.
+const articleSelect = `
+SELECT ar.id, ar.slug, ar.title, ar.subtitle, ar.lead_paragraph, ar.category,
+       ar.read_time_minutes, ar.published_at, ar.cover_image, ar.tags, ar.blocks,
+       ar.claps, ar.views, ar.tier,
+       a.id, a.slug, a.name, a.role, a.bio, a.avatar_url, a.twitter, a.github
+FROM articles ar
+JOIN authors a ON a.id = ar.author_id`
+
+func (s *SQLiteStore) ListArticles(ctx context.Context) ([]models.Article, error) {
+	rows, err := s.db.QueryContext(ctx, articleSelect+`
+ORDER BY ar.published_at DESC, ar.id DESC`)
+	if err != nil {
+		return nil, fmt.Errorf("list articles: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+	return scanArticles(rows)
+}
+
+func (s *SQLiteStore) ListArticlesByAuthor(ctx context.Context, authorID int64) ([]models.Article, error) {
+	rows, err := s.db.QueryContext(ctx, articleSelect+`
+WHERE ar.author_id = ?
+ORDER BY ar.published_at DESC, ar.id DESC`, authorID)
+	if err != nil {
+		return nil, fmt.Errorf("list articles by author %d: %w", authorID, err)
+	}
+	defer func() { _ = rows.Close() }()
+	return scanArticles(rows)
+}
+
+func (s *SQLiteStore) FindArticleBySlug(ctx context.Context, slug string) (models.Article, error) {
+	rows, err := s.db.QueryContext(ctx, articleSelect+`
+WHERE ar.slug = ?`, slug)
+	if err != nil {
+		return models.Article{}, fmt.Errorf("find article %q: %w", slug, err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	articles, err := scanArticles(rows)
+	if err != nil {
+		return models.Article{}, fmt.Errorf("find article %q: %w", slug, err)
+	}
+	if len(articles) == 0 {
+		return models.Article{}, fmt.Errorf("find article %q: %w", slug, ErrNotFound)
+	}
+	return articles[0], nil
+}
+
+// UpsertArticle is the seed write: content fields refresh on slug conflict,
+// while claps and views survive because they are live reader counters.
+func (s *SQLiteStore) UpsertArticle(ctx context.Context, article models.Article) (int64, error) {
+	tags, err := json.Marshal(article.Tags)
+	if err != nil {
+		return 0, fmt.Errorf("marshal tags for %q: %w", article.Slug, err)
+	}
+	blocks, err := json.Marshal(article.Blocks)
+	if err != nil {
+		return 0, fmt.Errorf("marshal blocks for %q: %w", article.Slug, err)
+	}
+
+	var id int64
+	err = s.db.QueryRowContext(ctx, `
+INSERT INTO articles (slug, title, subtitle, lead_paragraph, category, read_time_minutes,
+                      published_at, cover_image, author_id, tags, blocks, claps, views, tier)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(slug) DO UPDATE SET
+  title = excluded.title,
+  subtitle = excluded.subtitle,
+  lead_paragraph = excluded.lead_paragraph,
+  category = excluded.category,
+  read_time_minutes = excluded.read_time_minutes,
+  published_at = excluded.published_at,
+  cover_image = excluded.cover_image,
+  author_id = excluded.author_id,
+  tags = excluded.tags,
+  blocks = excluded.blocks,
+  tier = excluded.tier
+RETURNING id`,
+		article.Slug, article.Title, article.Subtitle, article.LeadParagraph, article.Category,
+		article.ReadTimeMinutes, article.PublishedAt.UTC().Format(time.RFC3339), article.CoverImage,
+		article.Author.ID, string(tags), string(blocks), article.Claps, article.Views, article.Tier,
+	).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("upsert article %q: %w", article.Slug, err)
+	}
+	return id, nil
+}
+
+func (s *SQLiteStore) IncrementArticleViews(ctx context.Context, id int64, delta int) error {
+	if delta < 1 {
+		delta = 1
+	}
+	if _, err := s.db.ExecContext(ctx, `UPDATE articles SET views = views + ? WHERE id = ?`, delta, id); err != nil {
+		return fmt.Errorf("increment views of article %d: %w", id, err)
+	}
+	return nil
+}
+
+func (s *SQLiteStore) AddArticleClaps(ctx context.Context, id int64, delta int) (int, error) {
+	if delta < 1 {
+		delta = 1
+	}
+	var total int
+	err := s.db.QueryRowContext(ctx, `UPDATE articles SET claps = claps + ? WHERE id = ? RETURNING claps`, delta, id).Scan(&total)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, fmt.Errorf("clap article %d: %w", id, ErrNotFound)
+		}
+		return 0, fmt.Errorf("clap article %d: %w", id, err)
+	}
+	return total, nil
+}
+
+func scanArticles(rows *sql.Rows) ([]models.Article, error) {
+	articles := []models.Article{}
+	for rows.Next() {
+		var article models.Article
+		var publishedAt, tags, blocks string
+		err := rows.Scan(
+			&article.ID, &article.Slug, &article.Title, &article.Subtitle, &article.LeadParagraph,
+			&article.Category, &article.ReadTimeMinutes, &publishedAt, &article.CoverImage,
+			&tags, &blocks, &article.Claps, &article.Views, &article.Tier,
+			&article.Author.ID, &article.Author.Slug, &article.Author.Name, &article.Author.Role,
+			&article.Author.Bio, &article.Author.AvatarURL, &article.Author.Twitter, &article.Author.GitHub,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("scan article: %w", err)
+		}
+		if err := hydrateArticle(&article, publishedAt, tags, blocks); err != nil {
+			return nil, err
+		}
+		articles = append(articles, article)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate articles: %w", err)
+	}
+	return articles, nil
+}
+
+func hydrateArticle(article *models.Article, publishedAt, tags, blocks string) error {
+	parsed, err := time.Parse(time.RFC3339, publishedAt)
+	if err != nil {
+		return fmt.Errorf("parse published_at %q of %q: %w", publishedAt, article.Slug, err)
+	}
+	article.PublishedAt = parsed
+	if err := json.Unmarshal([]byte(tags), &article.Tags); err != nil {
+		return fmt.Errorf("unmarshal tags of %q: %w", article.Slug, err)
+	}
+	if err := json.Unmarshal([]byte(blocks), &article.Blocks); err != nil {
+		return fmt.Errorf("unmarshal blocks of %q: %w", article.Slug, err)
+	}
+	return nil
+}

@@ -1,0 +1,47 @@
+{{ define "lead_article" }}
+{{ $a := .A }}
+<article class="group relative overflow-hidden rounded-2xl border border-foam/10 bg-foam/[0.03] transition-all duration-300 hover:border-foam/25 hover:shadow-lg">
+  <div class="grid grid-cols-1 items-stretch gap-0 lg:grid-cols-12">
+    <div class="flex flex-col justify-between p-6 sm:p-8 lg:col-span-7 lg:p-10">
+      <div>
+        <div class="mb-4 flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-wide text-foam/50">
+          <span class="font-semibold text-copper">{{ $a.Category }}</span>
+          <span aria-hidden="true" class="text-foam/25">·</span>
+          <span>{{ $a.DateLabel }}</span>
+          <span aria-hidden="true" class="text-foam/25">·</span>
+          <span>{{ $a.ReadTimeMinutes }} min de leitura</span>
+        </div>
+        <h2 class="text-balance font-serif text-2xl font-bold leading-tight tracking-tight text-foam sm:text-3xl lg:text-4xl">
+          <a href="/artigo/{{ $a.Slug }}" class="transition-colors group-hover:text-copper">{{ $a.Title }}</a>
+        </h2>
+        <p class="mt-4 line-clamp-3 text-sm leading-relaxed text-foam/60 sm:text-base">{{ $a.LeadParagraph }}</p>
+      </div>
+      <div class="mt-8 flex items-center justify-between gap-4 border-t border-foam/10 pt-6">
+        <a href="/autor/{{ $a.Author.Slug }}" class="group/author flex items-center gap-3">
+          <img src="{{ $a.Author.AvatarURL }}" alt="{{ $a.Author.Name }}" loading="lazy" class="h-10 w-10 rounded-full object-cover ring-1 ring-foam/15" />
+          <span>
+            <span class="block text-xs font-semibold text-foam sm:text-sm">{{ $a.Author.Name }}</span>
+            <span class="block text-[11px] text-foam/50">{{ $a.Author.Role }}</span>
+          </span>
+        </a>
+        <div class="flex items-center gap-2">
+          <.form action="/salvos/{{ $a.Slug }}" method="post" class="flex">
+            <input type="hidden" name="next" value="{{ .Next }}" />
+            <button type="submit" data-saved="{{ if $a.Saved }}true{{ else }}false{{ end }}" class="rounded-lg border p-2 transition-colors {{ if $a.Saved }}border-copper/70 bg-copper/10 text-copper{{ else }}border-foam/15 text-foam/50 hover:bg-foam/5 hover:text-foam{{ end }}" aria-label="{{ if $a.Saved }}Remover dos salvos{{ else }}Salvar artigo{{ end }}">
+              <svg class="h-4 w-4 {{ if $a.Saved }}fill-current{{ end }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+            </button>
+          </.form>
+          <a href="/artigo/{{ $a.Slug }}" class="inline-flex items-center gap-1.5 rounded-lg bg-foam px-3.5 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90">
+            <span>Ler Artigo</span>
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="/artigo/{{ $a.Slug }}" class="relative block min-h-[260px] overflow-hidden bg-foam/5 lg:col-span-5 lg:min-h-full" tabindex="-1" aria-hidden="true">
+      <img src="{{ $a.CoverImage }}" alt="" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      <span class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60"></span>
+    </a>
+  </div>
+</article>
+{{ end }}

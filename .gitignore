@@ -1,8 +1,11 @@
+bin/
+data/
+web/static/css/styles.css
 node_modules/
-build/
-dist/
-coverage/
-.DS_Store
-*.log
-.env*
+tmp/
+.air/
+*.db
+.env
+.env.*
 !.env.example
+.DS_Store

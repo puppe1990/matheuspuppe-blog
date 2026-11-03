@@ -1,6 +1,0 @@
-{
-  "name": "Sintaxe — Jornal de Tecnologia",
-  "description": "Publicação editorial de tecnologia e engenharia de software com análises sobre inteligência artificial, sistemas distribuídos, arquitetura e hardware.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

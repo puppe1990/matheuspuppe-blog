@@ -1,0 +1,181 @@
+{{ define "icon_sun" -}}
+<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></svg>
+{{- end -}}
+{{- define "icon_moon" -}}
+<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>
+{{- end -}}
+{{- define "icon_bookmark" -}}
+<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+{{- end -}}
+{{- define "app" }}
+<!doctype html>
+<html lang="{{ htmlLang }}" data-amarra-layout="app">
+  <head>
+    <meta charset="UTF-8" />
+    <script nonce="{{ .CSPNonce }}">
+      try {
+        if (localStorage.getItem("amarra-theme") === "light") document.documentElement.classList.add("light");
+      } catch (e) {}
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    {{ if .CSRFToken }}<meta name="csrf-token" content="{{ .CSRFToken }}" />{{ end }}
+    <title>{{ if .Title }}{{ .Title }}{{ else }}Sintaxe — Jornal de Tecnologia{{ end }}</title>
+    <meta name="description" content="{{ if .OGDescription }}{{ .OGDescription }}{{ else }}{{ t "site.tagline" }}{{ end }}" />
+    <meta property="og:type" content="{{ if .OGArticle }}article{{ else }}website{{ end }}" />
+    <meta property="og:site_name" content="Sintaxe" />
+    <meta property="og:title" content="{{ if .Title }}{{ .Title }}{{ else }}Sintaxe{{ end }}" />
+    <meta property="og:description" content="{{ if .OGDescription }}{{ .OGDescription }}{{ else }}{{ t "site.tagline" }}{{ end }}" />
+    <meta property="og:image" content="{{ if .OGImage }}{{ absURL .Site.AppURL .OGImage }}{{ else }}{{ absURL .Site.AppURL "/static/og.png" }}{{ end }}" />
+    <meta property="og:locale" content="{{ ogLocale }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+    <link rel="manifest" href="/static/manifest.webmanifest" />
+    <meta name="theme-color" content="#0c0a09" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Sintaxe" />
+    <link rel="apple-touch-icon" href="/static/icons/icon.png" />
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Sintaxe — Jornal de Tecnologia" href="/rss.xml" />
+    <script src="/static/js/amarra.js" defer></script>
+    <script src="/static/js/sintaxe.js" defer></script>
+  </head>
+  <body class="min-h-screen bg-ink font-sans antialiased text-foam" data-amarra-shell="public">
+    <div amarra-hook="dialog">
+      <header class="sticky top-0 z-40 w-full border-b border-foam/10 bg-ink/90 backdrop-blur-md">
+        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-8 px-4 sm:px-6 lg:px-8">
+          <a href="/" class="flex items-baseline gap-2" aria-label="Página inicial do Sintaxe">
+            <span class="font-serif text-2xl font-bold tracking-tight text-foam">SINTAXE</span>
+            <span class="hidden text-[10px] font-mono uppercase tracking-[0.28em] text-foam/40 sm:inline" title="Cais v{{ .FrameworkVersionFull }}">v{{ .FrameworkVersion }}</span>
+          </a>
+          <nav aria-label="Navegação principal" amarra-hook="nav" data-amarra-nav-on="text-copper" data-amarra-nav-off="text-foam/60 hover:text-foam" class="hidden items-center gap-7 text-sm font-medium md:flex">
+            <a href="/" class="border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "artigos" }}border-copper text-copper{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">{{ t "nav.artigos" }}</a>
+            <a href="/laboratorio" class="border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "playground" }}border-copper text-copper{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">{{ t "nav.playground" }}</a>
+            <a href="/salvos" class="flex items-center gap-1.5 border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "salvos" }}border-copper text-copper{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">
+              <span>{{ t "nav.salvos" }}</span>
+              {{ if .SavedCount }}<span class="rounded-full bg-copper/15 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-copper">{{ .SavedCount }}</span>{{ end }}
+            </a>
+            <a href="/sobre" class="border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "sobre" }}border-copper text-copper{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">{{ t "nav.sobre" }}</a>
+          </nav>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <button type="button" class="inline-flex items-center gap-2 rounded-lg px-2 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-foam/60 transition-colors hover:text-foam" amarra-hook="theme" aria-pressed="false" data-amarra-theme-key="amarra-theme" data-amarra-theme-color="#fafaf9" data-amarra-theme-color-off="#0c0a09" data-amarra-theme-on-label="{{ t "layout.theme_dark" }}" data-amarra-theme-off-label="{{ t "layout.theme_light" }}">
+              <span class="[html.light_&]:hidden">{{ template "icon_sun" . }}</span>
+              <span class="hidden [html.light_&]:block">{{ template "icon_moon" . }}</span>
+              <span class="hidden xl:inline" data-amarra-theme-label>{{ t "layout.theme_light" }}</span>
+            </button>
+            <a href="/salvos" class="rounded-lg p-2 text-foam/60 hover:text-foam md:hidden" aria-label="Ver artigos salvos">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+            </a>
+            <button type="button" data-amarra-dialog-open class="rounded-lg bg-foam px-3.5 py-2 text-xs font-medium text-ink transition-opacity hover:opacity-90 sm:text-sm">{{ t "layout.newsletter" }}</button>
+          </div>
+        </div>
+      </header>
+
+      <main id="amarra-main" class="min-h-[60vh]">
+        <.flash />
+        {{ template "content" . }}
+      </main>
+
+      <footer class="mt-20 border-t border-foam/10 text-foam/60">
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+          <div class="grid grid-cols-1 gap-8 md:grid-cols-12 lg:gap-12">
+            <div class="space-y-4 md:col-span-5">
+              <div class="flex items-center gap-2">
+                <span class="font-serif text-xl font-bold tracking-tight text-foam">SINTAXE</span>
+                <span class="text-xs font-mono text-foam/40">/ TECH BLOG</span>
+              </div>
+              <p class="max-w-sm text-xs leading-relaxed text-foam/50 sm:text-sm">{{ t "footer.mission" }}</p>
+              <div class="flex items-center gap-3 pt-2 text-xs">
+                <button type="button" data-amarra-dialog-open class="rounded-lg bg-foam px-3.5 py-1.5 font-medium text-ink transition-opacity hover:opacity-90">Assinar Boletim Gratuito</button>
+                <a href="/rss.xml" class="flex items-center gap-1.5 rounded-lg border border-foam/15 px-3 py-1.5 transition-colors hover:text-foam">
+                  <span class="text-copper">◉</span>
+                  <span>RSS</span>
+                </a>
+              </div>
+            </div>
+            <div class="space-y-3 md:col-span-3">
+              <h4 class="text-xs font-mono font-bold uppercase tracking-widest text-foam">Cadernos &amp; Tópicos</h4>
+              <ul class="space-y-2 text-xs">
+                <li><a class="transition-colors hover:text-foam" href="/?categoria=IA+%26+Modelos">IA &amp; Modelos</a></li>
+                <li><a class="transition-colors hover:text-foam" href="/?categoria=Engenharia+de+Sistemas">Engenharia de Sistemas</a></li>
+                <li><a class="transition-colors hover:text-foam" href="/?categoria=Hardware+%26+Chips">Hardware &amp; Chips</a></li>
+                <li><a class="transition-colors hover:text-foam" href="/?categoria=Design+%26+UX">Design &amp; UX</a></li>
+                <li><a class="transition-colors hover:text-foam" href="/?categoria=Seguran%C3%A7a+%26+Criptografia">Segurança &amp; Criptografia</a></li>
+              </ul>
+            </div>
+            <div class="space-y-3 md:col-span-4">
+              <h4 class="text-xs font-mono font-bold uppercase tracking-widest text-foam">Publicação &amp; Recursos</h4>
+              <ul class="space-y-2 text-xs">
+                <li><a class="transition-colors hover:text-foam" href="/laboratorio">Playground de Runtimes &amp; Latência</a></li>
+                <li><a class="transition-colors hover:text-foam" href="/sobre">Manifesto Editorial &amp; Conselho</a></li>
+                <li><a class="transition-colors hover:text-foam" href="/salvos">Artigos Marcados como Favoritos</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-foam/10 pt-6 text-[11px] text-foam/40 sm:flex-row">
+            <p>© 2026 Sintaxe Editorial. Todos os direitos reservados.</p>
+            <p class="font-mono">Desenvolvido com tipografia e engenharia de alto padrão.</p>
+          </div>
+        </div>
+      </footer>
+
+      <dialog data-amarra-dialog-target class="fixed inset-0 z-50 m-auto w-full max-w-lg rounded-2xl border border-foam/10 bg-ink p-0 text-foam shadow-2xl backdrop:bg-black/60">
+        <div class="p-6 sm:p-8">
+          <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-copper/10 text-copper" aria-hidden="true">✉</div>
+          <h3 class="font-serif text-xl font-bold tracking-tight text-foam sm:text-2xl">Boletim Semanal Sintaxe</h3>
+          <p class="mt-2 text-xs leading-relaxed text-foam/60 sm:text-sm">
+            Toda terça-feira pela manhã, uma seleção curada de ensaios aprofundados sobre arquitetura de software, avanços de IA e semicondutores. Zero clickbait, 100% rigor técnico.
+          </p>
+          <.form action="/newsletter" method="post">
+            <input type="hidden" name="next" value="/" data-newsletter-next />
+            <.input name="email" type="email" label="Endereço de e-mail corporativo ou pessoal" placeholder="voce@empresa.com.br" required="required" />
+            <div class="pt-2">
+              <.button type="submit" class="w-full">Confirmar Inscrição Gratuita</.button>
+            </div>
+          </.form>
+          <p class="mt-4 flex items-center justify-center gap-2 text-[11px] text-foam/40">
+            <span aria-hidden="true">✓</span>
+            <span>Sem spam. Cancele com um clique a qualquer momento.</span>
+          </p>
+        </div>
+      </dialog>
+    </div>
+
+    {{ if eq .Site.Env "development" }}
+    <script nonce="{{ .CSPNonce }}">
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          regs.forEach(function (r) { r.unregister(); });
+        });
+        if ("caches" in window) {
+          caches.keys().then(function (keys) {
+            keys.forEach(function (k) { caches.delete(k); });
+          });
+        }
+      }
+      (function () {
+        if (!("EventSource" in window)) return;
+        if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return;
+        var es = new EventSource("/_dev/reload");
+        es.addEventListener("reload", function () { location.reload(); });
+        es.addEventListener("boot", function (ev) {
+          var seen = sessionStorage.getItem("amarra-dev-boot");
+          sessionStorage.setItem("amarra-dev-boot", ev.data);
+          if (seen && seen !== ev.data) location.reload();
+        });
+      })();
+    </script>
+    {{ else }}
+    <script nonce="{{ .CSPNonce }}">
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/static/js/sw.js", { scope: "/" });
+      }
+    </script>
+    {{ end }}
+  </body>
+</html>
+{{ end }}

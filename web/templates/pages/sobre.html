@@ -1,0 +1,57 @@
+{{ define "content" }}
+<div class="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+  <div class="mb-12 border-b border-foam/10 pb-10">
+    <div class="mb-3 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-copper">
+      <span aria-hidden="true">✒</span>
+      <span>Manifesto Editorial</span>
+    </div>
+    <h1 class="font-serif text-3xl font-bold leading-tight tracking-tight text-foam sm:text-4xl lg:text-5xl">Engenharia com profundidade. Ideias que resistem ao ciclo de hype.</h1>
+    <p class="mt-4 text-base leading-relaxed text-foam/70 sm:text-lg">
+      O <strong class="text-foam">Sintaxe</strong> nasceu em resposta à superficialidade da cobertura contemporânea de tecnologia. Enquanto a web foi inundada por listas geradas em segundos e manchetes sensacionalistas sobre inteligência artificial, nós acreditamos no valor do ensaio técnico meticuloso, fundamentado em código real, benchmarks reproduzíveis e reflexão arquitetural.
+    </p>
+  </div>
+
+  <div class="mb-16 grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div class="rounded-2xl border border-foam/10 bg-foam/[0.03] p-6">
+      <div class="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-copper/10 text-copper" aria-hidden="true">▚</div>
+      <h3 class="mb-2 font-serif text-base font-bold text-foam">Primeiros Princípios</h3>
+      <p class="text-xs leading-relaxed text-foam/60 sm:text-sm">Investigamos como as coisas realmente funcionam: do circuito integrado ao compilador, do handshake de rede à inferência em matrizes neurais.</p>
+    </div>
+    <div class="rounded-2xl border border-foam/10 bg-foam/[0.03] p-6">
+      <div class="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-foam/5 text-foam/80" aria-hidden="true">▤</div>
+      <h3 class="mb-2 font-serif text-base font-bold text-foam">Rigor Mecânico</h3>
+      <p class="text-xs leading-relaxed text-foam/60 sm:text-sm">Sem afirmações vazias. Nossas comparações de performance trazem métricas de percentil p99, análise de concorrência e trade-offs documentados.</p>
+    </div>
+    <div class="rounded-2xl border border-foam/10 bg-foam/[0.03] p-6">
+      <div class="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-copper/10 text-copper" aria-hidden="true">▥</div>
+      <h3 class="mb-2 font-serif text-base font-bold text-foam">Tipografia &amp; Leitura</h3>
+      <p class="text-xs leading-relaxed text-foam/60 sm:text-sm">Uma interface pensada para quem lê ensaios de 10 minutos com foco ininterrupto: contraste calibrado, zero poluição visual e modo escuro nativo.</p>
+    </div>
+  </div>
+
+  <div>
+    <h2 class="mb-6 font-serif text-2xl font-bold tracking-tight text-foam">Corpo de Autores &amp; Pesquisadores</h2>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {{ range .Authors }}
+      <a href="/autor/{{ .Slug }}" class="group flex items-center justify-between rounded-xl border border-foam/10 bg-foam/[0.03] p-5 transition-colors hover:border-foam/25">
+        <span class="flex items-center gap-3.5">
+          <img src="{{ .AvatarURL }}" alt="{{ .Name }}" loading="lazy" class="h-12 w-12 rounded-full object-cover ring-1 ring-foam/15" />
+          <span>
+            <span class="block text-sm font-bold text-foam transition-colors group-hover:text-copper">{{ .Name }}</span>
+            <span class="block text-xs text-foam/50">{{ .Role }}</span>
+          </span>
+        </span>
+        <span class="flex items-center gap-2">
+          <span class="font-mono text-[10px] text-foam/40">{{ .ArticleCount }} ensaios</span>
+          <svg class="h-4 w-4 text-foam/40 transition-colors group-hover:text-foam" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </span>
+      </a>
+      {{ end }}
+    </div>
+  </div>
+
+  <div class="mt-12 text-center">
+    <a href="/" class="rounded-xl bg-foam px-5 py-2.5 text-xs font-semibold text-ink transition-opacity hover:opacity-90">Explorar Edição Atual de Artigos</a>
+  </div>
+</div>
+{{ end }}

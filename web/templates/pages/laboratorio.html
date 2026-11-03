@@ -1,0 +1,104 @@
+{{ define "content" }}
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+  <div class="max-w-3xl">
+    <div class="mb-2 flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-copper">
+      <span aria-hidden="true">◆</span>
+      <span>Laboratório Interativo de Engenharia</span>
+    </div>
+    <h1 class="font-serif text-2xl font-bold tracking-tight text-foam sm:text-3xl lg:text-4xl">Simulador de Runtimes em Alta Concorrência</h1>
+    <p class="mt-2 text-sm leading-relaxed text-foam/60">
+      Ajuste os parâmetros de tráfego de rede abaixo para inspecionar a resposta mecânica de quatro pilhas de backend. Observe como a pressão sobre o heap afeta o percentil p99 e o custo de infraestrutura em nuvem.
+    </p>
+  </div>
+
+  <form id="lab-form" action="/laboratorio" method="get">
+    <div class="mb-8 grid grid-cols-1 gap-6 rounded-xl border border-foam/10 bg-foam/[0.03] p-5 md:grid-cols-2">
+      <div>
+        <div class="mb-2 flex items-center justify-between text-xs font-semibold text-foam/80">
+          <span class="flex items-center gap-1.5">
+            <span class="text-foam/40" aria-hidden="true">⚙</span>
+            Volume de Requisições
+          </span>
+          <span class="font-mono tabular-nums text-copper" data-lab-reqs-value>{{ .ReqsLabel }} req/s</span>
+        </div>
+        <input type="range" name="reqs" min="{{ .MinReqs }}" max="{{ .MaxReqs }}" step="{{ .StepReqs }}" value="{{ .Params.Reqs }}" data-lab-reqs class="h-2 w-full cursor-pointer accent-copper" aria-label="Volume de requisições por segundo" />
+        <div class="mt-1 flex justify-between font-mono text-[11px] text-foam/40">
+          <span>2k req/s</span>
+          <span>50k req/s</span>
+          <span>100k req/s</span>
+        </div>
+      </div>
+      <div>
+        <div class="mb-2 flex items-center justify-between text-xs font-semibold text-foam/80">
+          <span class="flex items-center gap-1.5">
+            <span class="text-foam/40" aria-hidden="true">⚡</span>
+            Tamanho do Payload JSON
+          </span>
+          <span class="font-mono tabular-nums text-copper" data-lab-payload-value>{{ .Params.PayloadKB }} KB / requisição</span>
+        </div>
+        <input type="range" name="payload" min="{{ .MinPayloadKB }}" max="{{ .MaxPayloadKB }}" step="1" value="{{ .Params.PayloadKB }}" data-lab-payload class="h-2 w-full cursor-pointer accent-copper" aria-label="Tamanho do payload em quilobytes" />
+        <div class="mt-1 flex justify-between font-mono text-[11px] text-foam/40">
+          <span>1 KB (leve)</span>
+          <span>16 KB</span>
+          <span>32 KB (pesado)</span>
+        </div>
+      </div>
+      <div class="md:col-span-2 flex justify-end">
+        <button type="submit" class="rounded-lg border border-foam/20 px-3.5 py-1.5 text-xs font-semibold text-foam/80 transition-colors hover:bg-foam/5">Atualizar simulação</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    {{ range .Runtimes }}
+    <div class="flex flex-col justify-between rounded-xl border bg-foam/[0.03] p-5 shadow-sm transition-transform hover:-translate-y-0.5 {{ .BorderClass }}">
+      <div>
+        <div class="mb-3 flex items-center justify-between">
+          <span class="font-mono text-xs font-semibold uppercase text-foam/50">{{ .Lang }}</span>
+          <span class="h-2.5 w-2.5 rounded-full {{ .DotClass }}"></span>
+        </div>
+        <h4 class="text-sm font-semibold text-foam">{{ .Name }}</h4>
+
+        <div class="mt-4 border-t border-foam/10 pt-3">
+          <div class="flex items-center justify-between text-xs text-foam/50">
+            <span>Latência p99</span>
+            <span class="font-mono font-bold tabular-nums text-foam">{{ .P99MS }} ms</span>
+          </div>
+          <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-foam/10">
+            <div class="h-full w-0 transition-all duration-300 {{ .DotClass }}" data-bar-width="{{ .P99Pct }}"></div>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <div class="flex items-center justify-between text-xs text-foam/50">
+            <span>RAM por Pod</span>
+            <span class="font-mono font-semibold tabular-nums text-foam/80">{{ .MemMB }} MB</span>
+          </div>
+          <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-foam/10">
+            <div class="h-full w-0 bg-foam/40 transition-all duration-300" data-bar-width="{{ .MemPct }}"></div>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <div class="flex items-center justify-between text-xs text-foam/50">
+            <span>Carga de CPU</span>
+            <span class="font-mono font-semibold tabular-nums text-foam/80">{{ .CPUPercent }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 border-t border-foam/10 pt-3 font-mono text-[11px] text-foam/50">
+        <span class="font-semibold tabular-nums text-copper">{{ .PerWattLabel }}</span> req/s por kW estimado
+      </div>
+    </div>
+    {{ end }}
+  </div>
+
+  <div class="flex items-start gap-3 rounded-xl border border-foam/10 bg-foam/[0.03] p-4 text-xs text-foam/60">
+    <span class="mt-0.5 shrink-0 text-copper" aria-hidden="true">◆</span>
+    <p>
+      <strong class="font-semibold text-foam">Conclusão Mecânica:</strong> Em cargas acima de 50.000 req/s, linguagens com coleta de lixo estocástica gastam até 35% de ciclos úteis de CPU gerenciando heap. Para infraestrutura de roteamento de borda e gateways API, o determinismo de desalocação imediata em Rust viabiliza economias de custo de até 4x em clusters de nuvem.
+    </p>
+  </div>
+</div>
+{{ end }}

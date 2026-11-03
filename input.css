@@ -1,0 +1,213 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Palette as CSS variables so the theme hook flips the journal: :root is the
+     editorial night (stone ink + amber copper), html.light the printed paper.
+     Keep the ink/foam/copper/tide keys — the kit classes and amarra-cais doctor
+     read them (#258). */
+  :root {
+    color-scheme: dark;
+    --amarra-ink: 12 10 9;
+    --amarra-foam: 245 245 244;
+    --amarra-copper: 245 158 11;
+    --amarra-tide: 28 25 23;
+    --amarra-coral: 231 145 96;
+    --amarra-danger: 248 113 113;
+    --amarra-success: 74 222 128;
+  }
+
+  html.light {
+    color-scheme: light;
+    --amarra-ink: 250 250 249;
+    --amarra-foam: 28 25 23;
+    --amarra-copper: 180 83 9;
+    --amarra-tide: 231 229 228;
+    --amarra-coral: 194 65 12;
+    --amarra-danger: 220 38 38;
+    --amarra-success: 22 163 74;
+  }
+
+  body {
+    @apply font-sans antialiased text-foam bg-ink;
+  }
+
+  /* One curve and one duration for every interactive surface. Only paint and
+     transform transition, never layout. */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary {
+    transition-property: color, background-color, border-color, opacity, transform, width;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer components {
+  /* Progressive native select (#219). Unsupported browsers keep the current
+     OS picker. Do not add a JS listbox here — Drive/iOS keep a real <select>. */
+  @supports (appearance: base-select) {
+    select {
+      appearance: base-select;
+    }
+  }
+
+  /* Client-side invalid after interaction; server 422 still uses .Error. */
+  .amarra-field:user-invalid,
+  input:user-invalid,
+  select:user-invalid,
+  textarea:user-invalid {
+    border-color: rgb(var(--amarra-danger));
+  }
+
+  /* Shared control kit: the shipped components render these classes, so a
+     field and a button look the same no matter which generator wrote it. */
+  .amarra-label {
+    @apply mb-2 block text-sm text-foam/70;
+  }
+
+  .amarra-field {
+    @apply w-full rounded-lg border border-foam/15 bg-ink px-3 py-2 text-sm text-foam placeholder:text-foam/40 focus:border-copper/60 focus:outline-none focus:ring-2 focus:ring-copper/30;
+  }
+
+  .amarra-error {
+    @apply mt-2 text-[13px] leading-5 text-danger;
+  }
+
+  .amarra-btn {
+    @apply inline-flex h-9 flex-shrink-0 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-ink disabled:pointer-events-none disabled:opacity-60;
+  }
+
+  .amarra-btn-primary {
+    @apply bg-copper text-ink hover:bg-copper/90 active:scale-[0.98];
+  }
+
+  .amarra-btn-secondary {
+    @apply border border-foam/15 bg-ink text-foam/80 hover:bg-foam/5 hover:text-foam active:scale-[0.98];
+  }
+
+  .amarra-btn-quiet {
+    @apply px-2 text-foam/60 hover:text-foam;
+  }
+
+  /* The reader owns its typography: one variable drives every paragraph and
+     list item, and the font-size toolbar flips data-fontsize on the container. */
+  .amarra-reader {
+    --reader-font: 1rem;
+    --reader-leading: 1.75;
+  }
+
+  @media (min-width: 640px) {
+    .amarra-reader {
+      --reader-font: 1.125rem;
+      --reader-leading: 1.9;
+    }
+  }
+
+  .amarra-reader[data-fontsize="large"] {
+    --reader-font: 1.1875rem;
+    --reader-leading: 1.8;
+  }
+
+  .amarra-reader[data-fontsize="xl"] {
+    --reader-font: 1.375rem;
+    --reader-leading: 1.75;
+  }
+
+  @media (min-width: 640px) {
+    .amarra-reader[data-fontsize="large"] {
+      --reader-font: 1.3125rem;
+      --reader-leading: 1.8;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .amarra-reader[data-fontsize="xl"] {
+      --reader-font: 1.5rem;
+      --reader-leading: 1.75;
+    }
+  }
+
+  .amarra-reader p,
+  .amarra-reader li {
+    font-size: var(--reader-font);
+    line-height: var(--reader-leading);
+  }
+
+  /* Editorial drop cap on the lead paragraph. */
+  .amarra-dropcap::first-letter {
+    float: left;
+    margin: 0.35rem 0.75rem 0 0;
+    font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 3.25rem;
+    font-weight: 700;
+    line-height: 0.9;
+    color: rgb(var(--amarra-copper));
+  }
+
+  /* Takeaways render 01., 02., … via CSS counters (no add funcs in templates). */
+  .amarra-takeaways {
+    counter-reset: takeaway;
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .amarra-takeaways li {
+    counter-increment: takeaway;
+  }
+
+  .amarra-takeaways li::before {
+    content: counter(takeaway, decimal-leading-zero) ".";
+    margin-top: 0.3em;
+    margin-right: 0.625rem;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: rgb(var(--amarra-copper));
+  }
+
+  /* Focus mode: the reader's own chrome leaves, a floating HUD stays. */
+  body.amarra-focus header,
+  body.amarra-focus footer {
+    display: none;
+  }
+
+  body.amarra-focus [data-article-chrome] {
+    display: none;
+  }
+
+  body.amarra-focus .amarra-focus-hud {
+    display: flex;
+  }
+
+  /* JS-only surfaces carry their full styling here: the classes never appear
+     in scanned HTML, so Tailwind would prune utilities used only by scripts. */
+  .amarra-toast {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 70;
+    padding: 0.625rem 1rem;
+    border-radius: 0.75rem;
+    background: rgb(var(--amarra-foam));
+    color: rgb(var(--amarra-ink));
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+  }
+}

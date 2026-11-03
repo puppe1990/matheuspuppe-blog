@@ -1,0 +1,50 @@
+{{ define "category_nav" }}
+<div class="w-full space-y-4">
+  <form action="/" method="get" data-search-form class="relative mx-auto max-w-2xl">
+    <input type="hidden" name="categoria" value="{{ if ne .ActiveCategory "Todos" }}{{ .ActiveCategory }}{{ end }}" />
+    <input type="hidden" name="tempo" value="{{ if gt .MaxMinutes 0 }}{{ .MaxMinutes }}{{ end }}" />
+    <div class="relative flex items-center">
+      <span class="pointer-events-none absolute left-3.5 text-foam/40" aria-hidden="true">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" /></svg>
+      </span>
+      <input
+        id="search-input"
+        type="search"
+        name="q"
+        value="{{ .Search }}"
+        placeholder="Buscar por títulos, tópicos, autores ou palavras-chave..."
+        autocomplete="off"
+        class="w-full rounded-xl border border-foam/15 bg-ink py-2.5 pl-10 pr-10 text-sm text-foam placeholder-foam/35 shadow-sm outline-none transition-colors focus:border-copper/60"
+      />
+      {{ if .Search }}
+      <a href="{{ .ClearHref }}" class="absolute right-3 rounded-md p-1 text-foam/40 hover:text-foam" aria-label="Limpar busca">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+      </a>
+      {{ end }}
+    </div>
+  </form>
+
+  <div class="flex flex-col items-start justify-between gap-3 border-b border-foam/10 pb-3 lg:flex-row lg:items-center">
+    <div class="no-scrollbar flex w-full items-center gap-1.5 overflow-x-auto py-1 lg:w-auto">
+      {{ range .CategoryLinks }}
+      <a href="{{ .Href }}" class="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors {{ if .Active }}bg-foam font-semibold text-ink shadow-sm{{ else }}text-foam/60 hover:bg-foam/5 hover:text-foam{{ end }}">
+        <span>{{ .Label }}</span>
+        <span class="font-mono text-[11px] tabular-nums {{ if .Active }}opacity-80{{ else }}text-foam/40{{ end }}">({{ .Count }})</span>
+      </a>
+      {{ end }}
+    </div>
+
+    <div class="flex items-center gap-2 self-end text-xs text-foam/60 lg:self-auto">
+      <span class="text-foam/40" aria-hidden="true">
+        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      </span>
+      <span class="hidden sm:inline">Tempo:</span>
+      <div class="flex items-center gap-1 rounded-md border border-foam/10 bg-foam/5 p-0.5">
+        {{ range .TimeLinks }}
+        <a href="{{ .Href }}" class="rounded px-2 py-1 text-[11px] font-medium transition-colors {{ if .Active }}bg-foam/10 text-foam shadow-sm{{ else }}text-foam/50 hover:text-foam{{ end }}">{{ .Label }}</a>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}
