@@ -46,7 +46,7 @@ func setupTestViews(t *testing.T) *view.Renderer {
 	t.Helper()
 	root := projectRoot(t)
 	fsys := os.DirFS(filepath.Join(root, "web", "templates"))
-	r, err := view.Load(fsys, appi18n.DefaultCatalog())
+	r, err := view.Load(fsys, appi18n.NewCatalog("pt"), appi18n.NewCatalog("en"), appi18n.NewCatalog("pt"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,6 +130,20 @@ func seedFixtureCatalog(t *testing.T, st store.Store) models.Article {
 			Tier:            1,
 			Claps:           342,
 			Views:           4890,
+			SlugEN:          "first-essay",
+			TitleEN:         "The First Essay",
+			SubtitleEN:      "A dissection of the system, from the pier to the open sea.",
+			LeadParagraphEN: "The first paragraph of the main essay.",
+			TagsEN:          []string{"Artificial Intelligence", "Architecture"},
+			BlocksEN: []models.ContentBlock{
+				{Type: "takeaways", Items: []string{
+					"First takeaway.",
+					"Second takeaway.",
+				}},
+				{Type: "heading2", Text: "The Central Problem"},
+				{Type: "paragraph", Text: "A body paragraph with a technical argument."},
+				{Type: "quote", Text: "The right question is worth more than the quick answer.", AuthorQuote: "Matheus Puppe"},
+			},
 			Blocks: []models.ContentBlock{
 				{Type: "takeaways", Items: []string{
 					"Primeira conclusão do ensaio.",

@@ -12,12 +12,13 @@ import (
 )
 
 // articleSelect joins the author so listing pages render bylines without a
-// second query per card.
+// second query per card. The *_en columns carry the English edition.
 const articleSelect = `
 SELECT ar.id, ar.slug, ar.title, ar.subtitle, ar.lead_paragraph, ar.category,
        ar.read_time_minutes, ar.published_at, ar.cover_image, ar.tags, ar.blocks,
        ar.claps, ar.views, ar.tier,
-       a.id, a.slug, a.name, a.role, a.bio, a.avatar_url, a.twitter, a.github
+       ar.slug_en, ar.title_en, ar.subtitle_en, ar.lead_paragraph_en, ar.tags_en, ar.blocks_en,
+       a.id, a.slug, a.name, a.role, a.bio, a.role_en, a.bio_en, a.avatar_url, a.twitter, a.github
 FROM articles ar
 JOIN authors a ON a.id = ar.author_id`
 
@@ -52,8 +53,17 @@ ORDER BY ar.published_at DESC, ar.id DESC`, authorID, publishedNow())
 }
 
 func (s *SQLiteStore) FindArticleBySlug(ctx context.Context, slug string) (models.Article, error) {
+	return s.findArticle(ctx, "ar.slug", slug)
+}
+
+// FindArticleBySlugEN resolves the English edition by its own slug.
+func (s *SQLiteStore) FindArticleBySlugEN(ctx context.Context, slug string) (models.Article, error) {
+	return s.findArticle(ctx, "ar.slug_en", slug)
+}
+
+func (s *SQLiteStore) findArticle(ctx context.Context, column, slug string) (models.Article, error) {
 	rows, err := s.db.QueryContext(ctx, articleSelect+`
-WHERE ar.slug = ? AND ar.published_at <= ?`, slug, publishedNow())
+WHERE `+column+` = ? AND ar.published_at <= ?`, slug, publishedNow())
 	if err != nil {
 		return models.Article{}, fmt.Errorf("find article %q: %w", slug, err)
 	}
@@ -80,12 +90,21 @@ func (s *SQLiteStore) UpsertArticle(ctx context.Context, article models.Article)
 	if err != nil {
 		return 0, fmt.Errorf("marshal blocks for %q: %w", article.Slug, err)
 	}
+	tagsEN, err := json.Marshal(article.TagsEN)
+	if err != nil {
+		return 0, fmt.Errorf("marshal tags_en for %q: %w", article.Slug, err)
+	}
+	blocksEN, err := json.Marshal(article.BlocksEN)
+	if err != nil {
+		return 0, fmt.Errorf("marshal blocks_en for %q: %w", article.Slug, err)
+	}
 
 	var id int64
 	err = s.db.QueryRowContext(ctx, `
 INSERT INTO articles (slug, title, subtitle, lead_paragraph, category, read_time_minutes,
-                      published_at, cover_image, author_id, tags, blocks, claps, views, tier)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                      published_at, cover_image, author_id, tags, blocks, claps, views, tier,
+                      slug_en, title_en, subtitle_en, lead_paragraph_en, tags_en, blocks_en)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(slug) DO UPDATE SET
   title = excluded.title,
   subtitle = excluded.subtitle,
@@ -97,11 +116,19 @@ ON CONFLICT(slug) DO UPDATE SET
   author_id = excluded.author_id,
   tags = excluded.tags,
   blocks = excluded.blocks,
-  tier = excluded.tier
+  tier = excluded.tier,
+  slug_en = excluded.slug_en,
+  title_en = excluded.title_en,
+  subtitle_en = excluded.subtitle_en,
+  lead_paragraph_en = excluded.lead_paragraph_en,
+  tags_en = excluded.tags_en,
+  blocks_en = excluded.blocks_en
 RETURNING id`,
 		article.Slug, article.Title, article.Subtitle, article.LeadParagraph, article.Category,
 		article.ReadTimeMinutes, article.PublishedAt.UTC().Format(time.RFC3339), article.CoverImage,
 		article.Author.ID, string(tags), string(blocks), article.Claps, article.Views, article.Tier,
+		article.SlugEN, article.TitleEN, article.SubtitleEN, article.LeadParagraphEN,
+		string(tagsEN), string(blocksEN),
 	).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("upsert article %q: %w", article.Slug, err)
@@ -138,18 +165,21 @@ func scanArticles(rows *sql.Rows) ([]models.Article, error) {
 	articles := []models.Article{}
 	for rows.Next() {
 		var article models.Article
-		var publishedAt, tags, blocks string
+		var publishedAt, tags, blocks, tagsEN, blocksEN string
 		err := rows.Scan(
 			&article.ID, &article.Slug, &article.Title, &article.Subtitle, &article.LeadParagraph,
 			&article.Category, &article.ReadTimeMinutes, &publishedAt, &article.CoverImage,
 			&tags, &blocks, &article.Claps, &article.Views, &article.Tier,
+			&article.SlugEN, &article.TitleEN, &article.SubtitleEN, &article.LeadParagraphEN,
+			&tagsEN, &blocksEN,
 			&article.Author.ID, &article.Author.Slug, &article.Author.Name, &article.Author.Role,
-			&article.Author.Bio, &article.Author.AvatarURL, &article.Author.Twitter, &article.Author.GitHub,
+			&article.Author.Bio, &article.Author.RoleEN, &article.Author.BioEN,
+			&article.Author.AvatarURL, &article.Author.Twitter, &article.Author.GitHub,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("scan article: %w", err)
 		}
-		if err := hydrateArticle(&article, publishedAt, tags, blocks); err != nil {
+		if err := hydrateArticle(&article, publishedAt, tags, blocks, tagsEN, blocksEN); err != nil {
 			return nil, err
 		}
 		articles = append(articles, article)
@@ -160,7 +190,7 @@ func scanArticles(rows *sql.Rows) ([]models.Article, error) {
 	return articles, nil
 }
 
-func hydrateArticle(article *models.Article, publishedAt, tags, blocks string) error {
+func hydrateArticle(article *models.Article, publishedAt, tags, blocks, tagsEN, blocksEN string) error {
 	parsed, err := time.Parse(time.RFC3339, publishedAt)
 	if err != nil {
 		return fmt.Errorf("parse published_at %q of %q: %w", publishedAt, article.Slug, err)
@@ -171,6 +201,16 @@ func hydrateArticle(article *models.Article, publishedAt, tags, blocks string) e
 	}
 	if err := json.Unmarshal([]byte(blocks), &article.Blocks); err != nil {
 		return fmt.Errorf("unmarshal blocks of %q: %w", article.Slug, err)
+	}
+	if tagsEN != "" {
+		if err := json.Unmarshal([]byte(tagsEN), &article.TagsEN); err != nil {
+			return fmt.Errorf("unmarshal tags_en of %q: %w", article.Slug, err)
+		}
+	}
+	if blocksEN != "" {
+		if err := json.Unmarshal([]byte(blocksEN), &article.BlocksEN); err != nil {
+			return fmt.Errorf("unmarshal blocks_en of %q: %w", article.Slug, err)
+		}
 	}
 	return nil
 }

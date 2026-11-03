@@ -39,8 +39,22 @@ func NewArticleHandler(views *view.Renderer, st store.Store, site meta.Site, cat
 	return &ArticleHandler{views: views, store: st, site: site, catalog: catalog, cfg: cfg}
 }
 
+func (h *ArticleHandler) t(r *http.Request, key string, args ...any) string {
+	return i18n.CatalogOr(r, h.catalog).T(key, args...)
+}
+
+// findArticle resolves the request locale's slug: /en pages look up slug_en
+// only, so a Portuguese slug never leaks into the English edition (and the
+// other way around).
+func (h *ArticleHandler) findArticle(r *http.Request, slug string) (models.Article, error) {
+	if localeOf(r) == editorial.LocaleEN {
+		return h.store.FindArticleBySlugEN(r.Context(), slug)
+	}
+	return h.store.FindArticleBySlug(r.Context(), slug)
+}
+
 func (h *ArticleHandler) Show(w http.ResponseWriter, r *http.Request, slug string) {
-	article, err := h.store.FindArticleBySlug(r.Context(), slug)
+	article, err := h.findArticle(r, slug)
 	if errors.Is(err, store.ErrNotFound) {
 		h.renderNotFound(w, r)
 		return
@@ -59,7 +73,7 @@ func (h *ArticleHandler) Show(w http.ResponseWriter, r *http.Request, slug strin
 }
 
 func (h *ArticleHandler) CommentPost(w http.ResponseWriter, r *http.Request, slug string) {
-	article, err := h.store.FindArticleBySlug(r.Context(), slug)
+	article, err := h.findArticle(r, slug)
 	if errors.Is(err, store.ErrNotFound) {
 		h.renderNotFound(w, r)
 		return
@@ -74,7 +88,7 @@ func (h *ArticleHandler) CommentPost(w http.ResponseWriter, r *http.Request, slu
 		Role:    strings.TrimSpace(r.FormValue("cargo")),
 		Content: strings.TrimSpace(r.FormValue("conteudo")),
 	}
-	errs := form.validate()
+	errs := form.validate(func(key string) string { return h.t(r, key) })
 	if errs.Any() {
 		h.render(w, r, article, form, errs, http.StatusUnprocessableEntity)
 		return
@@ -96,12 +110,12 @@ func (h *ArticleHandler) CommentPost(w http.ResponseWriter, r *http.Request, slu
 		return
 	}
 
-	flash.Set(w, "notice", "Seu comentário foi publicado.", h.cfg.CookieSecure())
-	http.Redirect(w, r, "/artigo/"+article.Slug, http.StatusSeeOther)
+	flash.Set(w, "notice", h.t(r, "artigo.comment_posted"), h.cfg.CookieSecure())
+	http.Redirect(w, r, h.articleURL(r, article), http.StatusSeeOther)
 }
 
 func (h *ArticleHandler) ClapPost(w http.ResponseWriter, r *http.Request, slug string) {
-	article, err := h.store.FindArticleBySlug(r.Context(), slug)
+	article, err := h.findArticle(r, slug)
 	if errors.Is(err, store.ErrNotFound) {
 		h.renderNotFound(w, r)
 		return
@@ -117,22 +131,26 @@ func (h *ArticleHandler) ClapPost(w http.ResponseWriter, r *http.Request, slug s
 		httpx.ServerError(w, err, h.cfg)
 		return
 	}
-	http.Redirect(w, r, "/artigo/"+article.Slug, http.StatusSeeOther)
+	http.Redirect(w, r, h.articleURL(r, article), http.StatusSeeOther)
 }
 
-func (form commentForm) validate() validate.FieldErrors {
-	var errs validate.FieldErrors
-	switch {
-	case form.Name == "":
-		errs.Add("nome", "Informe seu nome.")
-	case len([]rune(form.Name)) < 2:
-		errs.Add("nome", "O nome precisa de ao menos 2 caracteres.")
+// articleURL is the reader path in the request locale.
+func (h *ArticleHandler) articleURL(r *http.Request, article models.Article) string {
+	locale := localeOf(r)
+	slug := article.Slug
+	if locale == editorial.LocaleEN && article.SlugEN != "" {
+		slug = article.SlugEN
 	}
-	switch {
-	case form.Content == "":
-		errs.Add("conteudo", "Escreva sua reflexão antes de publicar.")
-	case len([]rune(form.Content)) < 4:
-		errs.Add("conteudo", "O comentário precisa de ao menos 4 caracteres.")
+	return articlePath(slug, locale)
+}
+
+func (form commentForm) validate(tr func(key string) string) validate.FieldErrors {
+	var errs validate.FieldErrors
+	if form.Name == "" || len([]rune(form.Name)) < 2 {
+		errs.Add("nome", tr("artigo.invalid_name"))
+	}
+	if form.Content == "" || len([]rune(form.Content)) < 4 {
+		errs.Add("conteudo", tr("artigo.invalid_content"))
 	}
 	return errs
 }
@@ -142,19 +160,31 @@ func (h *ArticleHandler) renderNotFound(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *ArticleHandler) render(w http.ResponseWriter, r *http.Request, article models.Article, form commentForm, errs validate.FieldErrors, status int) {
+	locale := localeOf(r)
 	comments, err := h.store.ListComments(r.Context(), article.ID)
 	if err != nil {
 		httpx.ServerError(w, err, h.cfg)
 		return
 	}
+	localized := editorial.Localize(article, locale)
+	altURL := ""
+	if editorial.HasEnglish(article) {
+		if locale == editorial.LocaleEN {
+			altURL = articlePath(article.Slug, editorial.LocalePT)
+		} else {
+			altURL = articlePath(article.SlugEN, editorial.LocaleEN)
+		}
+	}
 
 	writeView(w, r, h.views, h.cfg, "app", "artigo", amarraData(r, h.site, map[string]any{
-		"Title":         article.Title,
-		"OGImage":       article.CoverImage,
-		"OGDescription": article.Subtitle,
+		"Title":         localized.Title,
+		"OGImage":       "/og/" + localized.Slug,
+		"OGArticle":     true,
+		"OGDescription": localized.Subtitle,
 		"ActiveNav":     "artigos",
-		"Article":       newArticleView(article, bookmarksFromRequest(r)),
-		"Comments":      newCommentViews(comments),
+		"AltURL":        altURL,
+		"Article":       newArticleView(article, bookmarksFromRequest(r), locale),
+		"Comments":      newCommentViews(comments, locale),
 		"CommentCount":  len(comments),
 		"Errors":        errs,
 		"Form":          form,

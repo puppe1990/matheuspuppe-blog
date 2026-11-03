@@ -1,19 +1,20 @@
 {{ define "content" }}
+{{ $home := "/" }}{{ if eq .Lang "en" }}{{ $home = "/en" }}{{ end }}
 <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
   <header class="border-b border-foam/10 pb-6">
     <span class="mb-3 block h-0.5 w-12 bg-copper" aria-hidden="true"></span>
-    <h1 class="font-serif text-3xl font-medium tracking-tight text-foam">Artigos salvos</h1>
-    <p class="mt-2 text-[13px] leading-6 text-foam/60">Guardados neste navegador, para leitura depois.</p>
+    <h1 class="font-serif text-3xl font-medium tracking-tight text-foam">{{ t "salvos.title" }}</h1>
+    <p class="mt-2 text-[13px] leading-6 text-foam/60">{{ t "salvos.body" }}</p>
   </header>
 
   {{ template "category_nav" . }}
 
   {{ if eq .TotalResults 0 }}
   <div class="rounded-xl border border-foam/10 p-8 py-16 text-center sm:py-20">
-    <h3 class="font-serif text-xl font-medium text-foam">Nenhum artigo salvo</h3>
-    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">Use o marcador em qualquer ensaio para guardá-lo aqui.</p>
+    <h3 class="font-serif text-xl font-medium text-foam">{{ t "salvos.empty_title" }}</h3>
+    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">{{ t "salvos.empty_body" }}</p>
     <div class="mt-6">
-      <a href="/" class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">Explorar a edição</a>
+      <a href="{{ $home }}" class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">{{ t "salvos.empty_cta" }}</a>
     </div>
   </div>
   {{ else }}
@@ -27,7 +28,7 @@
     {{ if .Secondary }}
     <section aria-label="Destaques">
       <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">
-        <h2 class="text-[13px] font-medium text-foam/60">Destaques</h2>
+        <h2 class="text-[13px] font-medium text-foam/60">{{ t "home.featured" }}</h2>
       </div>
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         {{ range .Secondary }}
@@ -40,7 +41,7 @@
     {{ if .Grid }}
     <section aria-label="Demais salvos">
       <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">
-        <h2 class="text-[13px] font-medium text-foam/60">Mais salvos</h2>
+        <h2 class="text-[13px] font-medium text-foam/60">{{ t "salvos.section_more" }}</h2>
         <span class="text-xs tabular-nums text-foam/55">{{ len .Grid }}</span>
       </div>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

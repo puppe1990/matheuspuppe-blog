@@ -17,7 +17,7 @@ func newSavedHandler(t *testing.T) (*SavedHandler, store.Store) {
 	t.Helper()
 	st := seedTestStore(t)
 	seedFixtureCatalog(t, st)
-	return NewSavedHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{}), st
+	return NewSavedHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{}), st
 }
 
 func getSaved(t *testing.T, target string, cookies ...*http.Cookie) *httptest.ResponseRecorder {

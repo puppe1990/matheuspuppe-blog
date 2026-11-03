@@ -9,6 +9,7 @@ import (
 // primeiroEnsaio é o primeiro texto publicado do Sintaxe: um relato de
 // engenharia sobre o tradutor de EPUBs que roda capítulo a capítulo.
 func primeiroEnsaio() models.Article {
+	en := primeiroEnsaioEn()
 	return models.Article{
 		Slug:            "traducao-epubs-llms-fila-por-capitulo",
 		Title:           "Tradução de EPUBs com LLMs: fila resiliente, retry por capítulo e modelos baratos",
@@ -23,6 +24,12 @@ func primeiroEnsaio() models.Article {
 		Tier:            1,
 		Claps:           0,
 		Views:           0,
+		SlugEN:          en.Slug,
+		TitleEN:         en.Title,
+		SubtitleEN:      en.Subtitle,
+		LeadParagraphEN: en.Lead,
+		TagsEN:          en.Tags,
+		BlocksEN:        en.Blocks,
 		Blocks: []models.ContentBlock{
 			{Type: "takeaways", Items: []string{
 				"O capítulo é a unidade atômica: retry, pausa, custo e retomada depois do restart vivem nele, não no livro.",

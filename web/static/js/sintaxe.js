@@ -10,6 +10,11 @@
     });
   }
 
+  function bodyText(key, fallback) {
+    var value = document.body.dataset[key];
+    return value || fallback;
+  }
+
   function toast(message) {
     var el = document.createElement("div");
     el.className = "amarra-toast";
@@ -93,7 +98,8 @@
     if (readout) {
       var minutes = parseInt(root.getAttribute("data-read-minutes") || "0", 10);
       var remaining = Math.max(0, Math.ceil(minutes * (1 - progress / 100)));
-      readout.textContent = Math.round(progress) + "% lido · " + remaining + "m restantes";
+      var pattern = bodyText("focusReadout", "%d%% lido · %dm restantes");
+      readout.textContent = pattern.replace("%d", Math.round(progress)).replace("%d", remaining);
     }
   }
 
@@ -116,7 +122,7 @@
     }
     if (navigator.clipboard) {
       navigator.clipboard.writeText(payload.url).then(function () {
-        toast("Link copiado.");
+        toast(bodyText("shareToast", "Link copiado."));
       }).catch(function () {});
     }
   });
@@ -129,7 +135,7 @@
       var label = button.querySelector("[data-copy-label]");
       if (!label) return;
       var original = label.textContent;
-      label.textContent = "Copiado";
+      label.textContent = bodyText("copied", "Copiado");
       setTimeout(function () {
         label.textContent = original;
       }, 2000);
@@ -155,7 +161,7 @@
       clearInterval(audioTimer);
       audioTimer = null;
       if (els.toggle) els.toggle.setAttribute("aria-pressed", "false");
-      if (els.label) els.label.textContent = "Ouvir";
+      if (els.label) els.label.textContent = bodyText("audioIdle", "Ouvir");
       return;
     }
     audioTimer = setInterval(function () {
@@ -166,13 +172,13 @@
         audioTimer = null;
         var current = audioElements();
         if (current.toggle) current.toggle.setAttribute("aria-pressed", "false");
-        if (current.label) current.label.textContent = "Ouvir";
+        if (current.label) current.label.textContent = bodyText("audioIdle", "Ouvir");
       }
       var els2 = audioElements();
       if (els2.progress) els2.progress.style.transform = "scaleX(" + audioProgress / 100 + ")";
     }, 500);
     if (els.toggle) els.toggle.setAttribute("aria-pressed", "true");
-    if (els.label) els.label.textContent = "Tocando";
+    if (els.label) els.label.textContent = bodyText("audioPlaying", "Tocando");
   });
 
   /* Newsletter dialog: remember where the reader was so the flash lands there. */

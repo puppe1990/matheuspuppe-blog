@@ -1,6 +1,6 @@
 {{ define "category_nav" }}
 <div class="w-full space-y-4">
-  <form action="/" method="get" data-search-form class="relative max-w-xs">
+  <form action="{{ if eq .Lang "en" }}/en{{ else }}/{{ end }}" method="get" data-search-form class="relative max-w-xs">
     <input type="hidden" name="categoria" value="{{ if ne .ActiveCategory "Todos" }}{{ .ActiveCategory }}{{ end }}" />
     <input type="hidden" name="tempo" value="{{ if gt .MaxMinutes 0 }}{{ .MaxMinutes }}{{ end }}" />
     <div class="relative flex items-center">
@@ -12,13 +12,13 @@
         type="search"
         name="q"
         value="{{ .Search }}"
-        placeholder="Buscar"
-        aria-label="Buscar"
+        placeholder="{{ t "filters.search" }}"
+        aria-label="{{ t "filters.search_aria" }}"
         autocomplete="off"
         class="w-full rounded-lg border border-foam/10 bg-ink py-2 pl-9 pr-9 text-sm text-foam placeholder-foam/40 outline-none focus:border-copper/60 focus:ring-2 focus:ring-copper/30"
       />
       {{ if .Search }}
-      <a href="{{ .ClearHref }}" class="absolute right-2.5 rounded p-1 text-foam/55 hover:text-foam" aria-label="Limpar busca">
+      <a href="{{ .ClearHref }}" class="absolute right-2.5 rounded p-1 text-foam/55 hover:text-foam" aria-label="{{ t "filters.search_clear" }}">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
       </a>
       {{ end }}
@@ -36,7 +36,7 @@
     </div>
 
     <div class="flex items-center gap-2 text-xs text-foam/55">
-      <span>Tempo</span>
+      <span>{{ t "filters.time" }}</span>
       <div class="flex items-center gap-0.5 rounded-md border border-foam/10 p-0.5">
         {{ range .TimeLinks }}
         <a href="{{ .Href }}" class="rounded px-2 py-1 text-xs transition-colors {{ if .Active }}bg-foam/10 text-foam{{ else }}text-foam/60 hover:text-foam{{ end }}">{{ .Label }}</a>

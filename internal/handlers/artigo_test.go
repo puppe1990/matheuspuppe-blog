@@ -20,7 +20,7 @@ func newArticleHandler(t *testing.T) (*ArticleHandler, store.Store) {
 	t.Helper()
 	st := seedTestStore(t)
 	seedFixtureCatalog(t, st)
-	return NewArticleHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{}), st
+	return NewArticleHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{}), st
 }
 
 func showArticle(t *testing.T, slug string) *httptest.ResponseRecorder {

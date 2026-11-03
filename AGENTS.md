@@ -32,6 +32,7 @@ Before writing production code:
 | Path                  | Responsabilidade                                                        |
 | --------------------- | ----------------------------------------------------------------------- |
 | `internal/editorial/` | Filtros, segmentação em tiers, tempo de leitura, bookmarks, datas pt-BR |
+| `internal/ogcard/`    | PNG 1200×630 de compartilhamento (capa e `/og/{slug}`)                  |
 
 | `internal/db/` | Conteúdo real + `RunSeeds` idempotente e reconciliador (roda no boot; não zera claps/views; remove linhas fora dos seeds) |
 | `internal/store/` | SQLite + migrations (`authors`, `articles`, `comments`, `subscribers`) |
@@ -44,12 +45,13 @@ Markers de geradores (não remover): `registerRoutes`, `Close() error`, `// cais
 
 - **Sem auth**: tudo público; o único estado pessoal é o cookie `sintaxe_salvos` (HttpOnly, cap de 100 slugs em `editorial`). `next` de todo form passa por `sanitizeNext` (mesmo-site absoluto apenas).
 - **Agendamento**: `published_at` no futuro fica invisível (capa, página do autor, sitemap, RSS e rota direta → 404) até o instante — o corte é `published_at <= now` no store (`publishedNow`). Como os seeds rodam no boot, o post **entra sozinho no dia, sem novo deploy**. Hora em UTC: meia-noite de Brasília = `03:00Z`; manhã editorial = `09:00Z` (06:00 BRT).
+- **Bilíngue por caminho**: raiz é pt-BR, `/en` é a edição inglesa. `pathLocale` (internal/app) injeta `lang=en` antes do `i18n.LocaleMiddleware`; `localeOf` (handlers) devolve `en`/`pt`. Conteúdo traduzido mora nas colunas `*_en` do artigo (`SlugEN` incluso) e em `role_en`/`bio_en` do autor (`editorial.Localize` faz o swap, com fallback para o português). Slugs são **estritos por idioma** — `/en/artigo/{slug_pt}` e `/artigo/{slug_en}` respondem 404. Toda string de chrome usa `t` com os catálogos `internal/i18n/{en,pt}.go`; datas e cadernos saem de `editorial/localization.go` (`FormatDateIn`, `CategoryLabel`). O cookie `sintaxe_salvos` guarda o slug canônico (pt-BR) para a biblioteca sobreviver à troca de idioma; o toggle `PT/EN` do layout aponta para o caminho equivalente com o slug traduzido.
 - **Catálogo = código**: `RunSeeds` reconcilia — artigo/autor fora de `internal/db/content.go` é removido do banco (comentários do artigo removido vão junto, em FK order). Assinantes do boletim são preservados.
 - **Templates**: Amarra Views (`view.Write`), kit `<.form>`/`<.input>`/`<.button>`/`<.flash />`. Só **partials flat** carregam; `pages/*/*.html` teria um nível de nesting (não usado aqui). Sem funções custom de template — datas/percentuais são pré-computados nos view-models.
 - **Drive**: links/forms são interceptados; POSTs redirecionam 303 ("flash + redirect"). GET de form serializa os campos na query (`?q=&categoria=&tempo=`). Não checar `HX-Request`.
 - **CSS/Tailwind**: classes JS-only (`amarra-focus`, `amarra-toast`) e as cores dos runtimes (safelist) não aparecem no HTML escaneado — mantenha no `safelist` do `tailwind.config.js` ou o Tailwind purga a regra. A paleta vem das vars `--amarra-*` em `input.css` (`:root` escuro, `html.light` claro).
 - **JS**: `web/static/js/sintaxe.js` é o único script do app; listeners delegados no `document`, re-init de estado no evento `amarra:morphed`.
-- **SEO**: `sitemap.xml`, `rss.xml` e `robots.txt` respondem **sem** `Set-Cookie` (#342). Páginas de artigo enriquecem `OGImage`/`OGDescription`.
+- **SEO**: `sitemap.xml`, `rss.xml` e `robots.txt` respondem **sem** `Set-Cookie` (#342). A capa usa `web/static/og.png` (1200×630, `make og`). Artigo aponta `og:image` para `GET /og/{slug}` — PNG pintado com o título, sem cookie. Regenerar a capa: `go run ./cmd/genog`.
 
 ## Comandos
 
@@ -58,6 +60,7 @@ amarra-cais dev            # air + tailwind watch (templates recarregam in-proce
 go test ./... -race -count=1
 amarra-cais routes
 amarra-cais db seed        # idempotente; também roda no boot do servidor
+make og                    # regenera web/static/og.png
 make ci                    # test + lint + format-check
 ```
 

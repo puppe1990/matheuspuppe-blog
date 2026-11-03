@@ -12,6 +12,8 @@ func seedAuthors() []models.Author {
 			Name:      "Matheus Puppe",
 			Role:      "Engenheiro de software & fundador da Gestão Bem",
 			Bio:       "Construo produtos de software de ponta a ponta — do framework Amarra-cais ao Purple Stock e ao Hora Solar — e escrevo sobre sistemas, IA e o que aprendo operando tudo em produção.",
+			RoleEN:    "Software engineer & founder of Gestão Bem",
+			BioEN:     "I build software products end to end — from the Amarra-cais framework to Purple Stock and Hora Solar — and write about systems, AI and what I learn running them in production.",
 			AvatarURL: "/static/img/author-matheus.jpg",
 			GitHub:    "puppe1990",
 		},

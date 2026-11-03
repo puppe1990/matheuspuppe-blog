@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sintaxe — Open Graph</title>
+    <style>
+      @font-face {
+        font-family: Fraunces;
+        font-weight: 600;
+        src: url("../internal/ogcard/fonts/Fraunces144pt-SemiBold.ttf") format("truetype");
+      }
+      @font-face {
+        font-family: "Plus Jakarta Sans";
+        font-weight: 500;
+        src: url("../internal/ogcard/fonts/PlusJakartaSans-Medium.ttf") format("truetype");
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #161513;
+        color: #efe9de;
+      }
+      body {
+        position: relative;
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      }
+      body::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 4;
+        opacity: 0.08;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .bar {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 8px;
+        background: #f59e0b;
+        z-index: 3;
+      }
+      .glow {
+        position: absolute;
+        width: 520px;
+        height: 520px;
+        right: -40px;
+        top: -80px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(22, 21, 19, 0) 68%);
+        z-index: 0;
+      }
+      .mark {
+        position: absolute;
+        right: 72px;
+        bottom: 36px;
+        font-family: Fraunces, Georgia, serif;
+        font-size: 280px;
+        font-weight: 600;
+        line-height: 1;
+        color: rgba(245, 158, 11, 0.18);
+        z-index: 1;
+        pointer-events: none;
+      }
+      main {
+        position: relative;
+        z-index: 2;
+        height: 630px;
+        padding: 72px 80px 52px;
+      }
+      .kicker {
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #f59e0b;
+        margin-bottom: 36px;
+      }
+      h1 {
+        font-family: Fraunces, Georgia, serif;
+        font-size: 108px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        line-height: 0.92;
+        color: #efe9de;
+        margin-bottom: 22px;
+      }
+      .lede {
+        font-family: Fraunces, Georgia, serif;
+        font-size: 28px;
+        font-weight: 600;
+        color: #b8b0a4;
+        margin-bottom: 36px;
+      }
+      .rule {
+        width: 640px;
+        height: 1px;
+        background: rgba(245, 158, 11, 0.53);
+      }
+      .url {
+        position: absolute;
+        right: 80px;
+        bottom: 52px;
+        font-size: 16px;
+        letter-spacing: 0.02em;
+        color: #b8b0a4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar" aria-hidden="true"></div>
+    <div class="glow" aria-hidden="true"></div>
+    <div class="mark" aria-hidden="true">S</div>
+    <main>
+      <p class="kicker">Jornal de Tecnologia</p>
+      <h1>Sintaxe</h1>
+      <p class="lede">sistemas, IA e o ofício de construir</p>
+      <div class="rule" aria-hidden="true"></div>
+    </main>
+    <p class="url">sintaxe.apps.gestaobem.com</p>
+  </body>
+</html>

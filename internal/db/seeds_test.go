@@ -61,6 +61,15 @@ func TestRunSeeds_PublishesTheFirstEdition(t *testing.T) {
 	if len(articles[0].Blocks) == 0 {
 		t.Fatalf("first essay has no content blocks")
 	}
+	if articles[0].SlugEN != "epub-translation-llms-resilient-queue" {
+		t.Fatalf("english slug = %q", articles[0].SlugEN)
+	}
+	if articles[0].TitleEN == "" || articles[0].LeadParagraphEN == "" || len(articles[0].BlocksEN) == 0 {
+		t.Fatalf("english edition incomplete: %+v", articles[0])
+	}
+	if author.RoleEN == "" || author.BioEN == "" {
+		t.Fatalf("author english fields empty: %+v", author)
+	}
 }
 
 func TestRunSeeds_PrunesCatalogRowsThatLeftTheSeeds(t *testing.T) {

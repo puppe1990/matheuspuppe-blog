@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/puppe1990/amarra-cais/pkg/amarra/live"
@@ -63,6 +64,9 @@ func New(cfg cais.Config, deps Deps) (*App, error) {
 	r.Use(middleware.CSRF(cfg))
 	r.Use(middleware.LoadSession(deps.Store.Sessions()))
 	r.Use(middleware.Flash(cfg))
+	// The URL carries the edition: /en/* requests resolve the English catalog
+	// before i18n.LocaleMiddleware picks the renderer catalog.
+	r.Use(pathLocale)
 	catalogs := deps.Catalogs
 	if len(catalogs) == 0 {
 		catalogs = map[string]*i18n.Catalog{
@@ -105,6 +109,23 @@ func New(cfg cais.Config, deps Deps) (*App, error) {
 			IdleTimeout:       60 * time.Second,
 		},
 	}, nil
+}
+
+// pathLocale forces the English catalog for /en routes so the URL is the
+// single source of truth for the edition: the language toggle links to the
+// translated slug and this middleware resolves it before i18n runs.
+func pathLocale(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/en" || strings.HasPrefix(r.URL.Path, "/en/") {
+			query := r.URL.Query()
+			query.Set("lang", "en")
+			clone := r.Clone(r.Context())
+			clone.URL.RawQuery = query.Encode()
+			next.ServeHTTP(w, clone)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func healthHandler(s store.Store, cfg cais.Config) http.HandlerFunc {

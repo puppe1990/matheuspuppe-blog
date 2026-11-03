@@ -8,6 +8,19 @@ O blog editorial [Sintaxe](https://sintaxe.apps.gestaobem.com) reconstruído com
 - **Leitor** (`/artigo/{slug}`) com blocos ricos (takeaways numerados, quotes, código copiável, benchmark interativo), progresso de leitura, modo de foco, tamanho de fonte, aplausos, compartilhamento, comentários e contador de views.
 - **Biblioteca pessoal** (`/salvos`) guardada no cookie `sintaxe_salvos` (HttpOnly), com toggle por artigo.
 - **Manifesto** (`/sobre`), **página do colunista** (`/autor/{slug}`), **boletim** por e-mail (SQLite) e `sitemap.xml` / `rss.xml` / `robots.txt` sem cookies.
+- **Open Graph**: capa em `web/static/og.png` (1200×630). Artigo compartilhado pinta o título em `GET /og/{slug}`. Spec visual em `design/og.html`. Regenerar a capa: `make og`.
+
+## Edição em inglês (`/en`)
+
+O Sintaxe é bilíngue por caminho: a raiz é pt-BR e `/en` é a edição inglesa. O toggle `PT / EN` no header aponta para o caminho equivalente **com o slug traduzido** — `/artigo/traducao-epubs-llms-fila-por-capitulo` ↔ `/en/artigo/epub-translation-llms-resilient-queue`.
+
+- **Conteúdo**: o ensaio carrega a tradução nas colunas `slug_en`, `title_en`, `subtitle_en`, `lead_paragraph_en`, `tags_en`, `blocks_en` (migration `002_article_translations.sql`); role/bio do colunista em `role_en`/`bio_en`. Sem tradução, o `/en` cai na edição portuguesa (menos o slug, que é estrito: slug PT em `/en` responde 404).
+- **Slugs são estritos por idioma**: `/artigo/{slug_pt}` não resolve em inglês e `/en/artigo/{slug_en}` não resolve na raiz.
+- **Chrome**: todas as strings passam por `t` nos catálogos `internal/i18n/{en,pt}.go`; `/en/*` força o catálogo inglês em `pathLocale` (internal/app) antes do `i18n.LocaleMiddleware`. Datas e rótulos de caderno saem de `internal/editorial/localization.go`.
+- **Identidade do leitor**: o cookie `sintaxe_salvos` guarda sempre o slug canônico (pt-BR), então a biblioteca funciona ao trocar de idioma.
+- **SEO**: `hreflang` recíproco quando existe tradução, `<html lang>` por catálogo e `sitemap.xml` com as duas URLs.
+
+Para publicar a tradução de um ensaio novo, preencha os campos `*EN` (inclusive `SlugEN`) no arquivo `internal/db/content_articles_*.go` — a edição inglesa entra no mesmo deploy.
 
 ## Agendar posts
 
@@ -52,6 +65,7 @@ go test ./... -race -count=1
 | `internal/app/`       | Bootstrap, `registerRoutes`, 404 desenhado           |
 | `internal/handlers/`  | HTTP handlers (`view.Write`) + view-models           |
 | `internal/editorial/` | Regras editoriais puras (filtros, tiers, formatação) |
+| `internal/ogcard/`    | PNG 1200×630 de compartilhamento (capa e `/og/{slug}`) |
 
 | `internal/models/` | Row structs (SQL) e payloads |
 | `internal/store/` | SQLite + migrations |

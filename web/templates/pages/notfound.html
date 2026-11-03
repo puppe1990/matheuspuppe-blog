@@ -1,14 +1,16 @@
 {{ define "content" }}
+{{ $home := "/" }}{{ if eq .Lang "en" }}{{ $home = "/en" }}{{ end }}
+{{ $about := "/sobre" }}{{ if eq .Lang "en" }}{{ $about = "/en/sobre" }}{{ end }}
 <div class="mx-auto flex max-w-2xl flex-col items-center px-4 py-24 text-center sm:px-6">
   <span class="mb-6 h-0.5 w-12 bg-copper" aria-hidden="true"></span>
-  <p class="text-xs tabular-nums text-foam/55">404</p>
-  <h1 class="mt-2 font-serif text-3xl font-medium tracking-tight text-foam sm:text-4xl">Esta página não consta na edição.</h1>
+  <p class="text-xs tabular-nums text-foam/55">{{ t "notfound.label" }}</p>
+  <h1 class="mt-2 font-serif text-3xl font-medium tracking-tight text-foam sm:text-4xl">{{ t "notfound.headline" }}</h1>
   <p class="mt-4 max-w-md text-[13px] leading-6 text-foam/60">
-    O ensaio que você procura pode ter sido movido, renomeado ou nunca existiu. Volte à capa para explorar a edição atual.
+    {{ t "notfound.body" }}
   </p>
   <div class="mt-8 flex items-center gap-3">
-    <a href="/" class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">Voltar à capa</a>
-    <a href="/sobre" class="inline-flex h-9 items-center rounded-lg border border-foam/10 px-4 text-[13px] font-medium text-foam/80 transition-colors hover:bg-foam/5 hover:text-foam">Sobre o jornal</a>
+    <a href="{{ $home }}" class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">{{ t "notfound.home" }}</a>
+    <a href="{{ $about }}" class="inline-flex h-9 items-center rounded-lg border border-foam/10 px-4 text-[13px] font-medium text-foam/80 transition-colors hover:bg-foam/5 hover:text-foam">{{ t "notfound.about" }}</a>
   </div>
 </div>
 {{ end }}

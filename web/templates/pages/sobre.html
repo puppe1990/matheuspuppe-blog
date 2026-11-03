@@ -1,34 +1,36 @@
 {{ define "content" }}
+{{ $home := "/" }}{{ if eq .Lang "en" }}{{ $home = "/en" }}{{ end }}
+{{ $authorBase := "/autor" }}{{ if eq .Lang "en" }}{{ $authorBase = "/en/autor" }}{{ end }}
 <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
   <header class="border-b border-foam/10 pb-10">
     <span class="mb-3 block h-0.5 w-12 bg-copper" aria-hidden="true"></span>
-    <p class="text-xs text-foam/55">Manifesto</p>
-    <h1 class="mt-2 font-serif text-3xl font-medium leading-tight tracking-tight text-foam sm:text-4xl">Engenharia com profundidade. Ideias que resistem ao ciclo de hype.</h1>
+    <p class="text-xs text-foam/55">{{ t "sobre.label" }}</p>
+    <h1 class="mt-2 font-serif text-3xl font-medium leading-tight tracking-tight text-foam sm:text-4xl">{{ t "sobre.headline" }}</h1>
     <p class="mt-4 text-sm leading-7 text-foam/60 sm:text-base">
-      O <strong class="font-medium text-foam">Sintaxe</strong> nasceu em resposta à superficialidade da cobertura contemporânea de tecnologia. Enquanto a web foi inundada por listas geradas em segundos e manchetes sensacionalistas sobre inteligência artificial, nós acreditamos no valor do ensaio técnico meticuloso, fundamentado em código real, benchmarks reproduzíveis e reflexão arquitetural.
+      {{ t "sobre.intro_1" }}<strong class="font-medium text-foam">Sintaxe</strong>{{ t "sobre.intro_2" }}
     </p>
   </header>
 
   <div class="grid grid-cols-1 gap-6 border-b border-foam/10 py-10 md:grid-cols-3">
     <div>
-      <h2 class="font-serif text-base font-medium text-foam">Primeiros princípios</h2>
-      <p class="mt-2 text-[13px] leading-6 text-foam/60">Investigamos como as coisas realmente funcionam: do circuito integrado ao compilador, do handshake de rede à inferência em matrizes neurais.</p>
+      <h2 class="font-serif text-base font-medium text-foam">{{ t "sobre.pillar1_title" }}</h2>
+      <p class="mt-2 text-[13px] leading-6 text-foam/60">{{ t "sobre.pillar1_body" }}</p>
     </div>
     <div>
-      <h2 class="font-serif text-base font-medium text-foam">Rigor mecânico</h2>
-      <p class="mt-2 text-[13px] leading-6 text-foam/60">Sem afirmações vazias. Nossas comparações de performance trazem métricas de percentil p99, análise de concorrência e trade-offs documentados.</p>
+      <h2 class="font-serif text-base font-medium text-foam">{{ t "sobre.pillar2_title" }}</h2>
+      <p class="mt-2 text-[13px] leading-6 text-foam/60">{{ t "sobre.pillar2_body" }}</p>
     </div>
     <div>
-      <h2 class="font-serif text-base font-medium text-foam">Tipografia e leitura</h2>
-      <p class="mt-2 text-[13px] leading-6 text-foam/60">Uma interface pensada para quem lê ensaios de 10 minutos com foco ininterrupto: contraste calibrado, zero poluição visual e modo escuro nativo.</p>
+      <h2 class="font-serif text-base font-medium text-foam">{{ t "sobre.pillar3_title" }}</h2>
+      <p class="mt-2 text-[13px] leading-6 text-foam/60">{{ t "sobre.pillar3_body" }}</p>
     </div>
   </div>
 
   <div class="pt-10">
-    <h2 class="mb-2 font-serif text-2xl font-medium tracking-tight text-foam">Quem escreve</h2>
+    <h2 class="mb-2 font-serif text-2xl font-medium tracking-tight text-foam">{{ t "sobre.who" }}</h2>
     <div class="grid grid-cols-1 gap-4">
       {{ range .Authors }}
-      <a href="/autor/{{ .Slug }}" class="group flex items-center justify-between rounded-xl border border-foam/10 p-5 transition-colors hover:border-foam/20">
+      <a href="{{ $authorBase }}/{{ .Slug }}" class="group flex items-center justify-between rounded-xl border border-foam/10 p-5 transition-colors hover:border-foam/20">
         <span class="flex items-center gap-3.5">
           <img src="{{ .AvatarURL }}" alt="{{ .Name }}" loading="lazy" class="h-12 w-12 rounded-full object-cover ring-1 ring-foam/10" />
           <span>
@@ -37,7 +39,7 @@
           </span>
         </span>
         <span class="flex items-center gap-3 text-xs tabular-nums text-foam/55">
-          <span>{{ .ArticleCount }} {{ if eq .ArticleCount 1 }}ensaio{{ else }}ensaios{{ end }}</span>
+          <span>{{ .ArticleCount }} {{ if eq .ArticleCount 1 }}{{ t "home.essay_one" }}{{ else }}{{ t "home.essay_many" }}{{ end }}</span>
           <svg class="h-4 w-4 transition-colors group-hover:text-foam" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" /></svg>
         </span>
       </a>
@@ -46,7 +48,7 @@
   </div>
 
   <div class="mt-10">
-    <a href="/" class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">Explorar a edição</a>
+    <a href="{{ $home }}" class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">{{ t "sobre.cta" }}</a>
   </div>
 </div>
 {{ end }}

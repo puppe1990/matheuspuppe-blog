@@ -45,7 +45,7 @@ func (h *SitemapHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	base := strings.TrimSuffix(h.site.AppURL, "/")
 
 	set := urlSet{Xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9"}
-	for _, path := range []string{"/", "/sobre", "/salvos"} {
+	for _, path := range []string{"/", "/sobre", "/salvos", "/en", "/en/sobre", "/en/salvos"} {
 		set.URLs = append(set.URLs, urlEntry{Loc: base + path})
 	}
 	for _, article := range articles {
@@ -53,6 +53,12 @@ func (h *SitemapHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Loc:     base + "/artigo/" + article.Slug,
 			LastMod: article.PublishedAt.Format("2006-01-02"),
 		})
+		if article.SlugEN != "" {
+			set.URLs = append(set.URLs, urlEntry{
+				Loc:     base + "/en/artigo/" + article.SlugEN,
+				LastMod: article.PublishedAt.Format("2006-01-02"),
+			})
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")

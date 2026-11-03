@@ -9,6 +9,8 @@ import (
 	"github.com/puppe1990/amarra-cais/pkg/cais/i18n"
 	"github.com/puppe1990/amarra-cais/pkg/cais/meta"
 
+	"github.com/puppe1990/matheuspuppe-blog/internal/editorial"
+	"github.com/puppe1990/matheuspuppe-blog/internal/models"
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
 )
 
@@ -25,16 +27,25 @@ func NewSobreHandler(views *view.Renderer, st store.Store, site meta.Site, catal
 	return &SobreHandler{views: views, store: st, site: site, catalog: catalog, cfg: cfg}
 }
 
+func (h *SobreHandler) t(r *http.Request, key string) string {
+	return i18n.CatalogOr(r, h.catalog).T(key)
+}
+
 func (h *SobreHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	locale := localeOf(r)
 	authors, err := h.store.ListAuthors(r.Context())
 	if err != nil {
 		httpx.ServerError(w, err, h.cfg)
 		return
 	}
+	localized := make([]models.Author, len(authors))
+	for i, author := range authors {
+		localized[i] = editorial.LocalizeAuthor(author, locale)
+	}
 
 	writeView(w, r, h.views, h.cfg, "app", "sobre", amarraData(r, h.site, map[string]any{
-		"Title":     "Manifesto Editorial · Sintaxe",
+		"Title":     h.t(r, "sobre.label") + " · Sintaxe",
 		"ActiveNav": "sobre",
-		"Authors":   authors,
+		"Authors":   localized,
 	}), http.StatusOK)
 }

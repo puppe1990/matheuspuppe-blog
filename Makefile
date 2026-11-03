@@ -1,4 +1,4 @@
-.PHONY: dev build test css css-watch lint format format-check pre-commit-install ci
+.PHONY: dev build test css css-watch lint format format-check pre-commit-install ci og
 
 CAIS := $(shell command -v amarra-cais 2>/dev/null || command -v $(HOME)/go/bin/amarra-cais 2>/dev/null)
 
@@ -28,6 +28,9 @@ css:
 
 css-watch:
 	npx tailwindcss -i $(CSS_IN) -o $(CSS_OUT) --minify --watch
+
+og:
+	go run ./cmd/genog -out web/static/og.png
 
 build: css
 	CGO_ENABLED=0 go build -ldflags="-s -w" -o $(BIN) ./cmd/server

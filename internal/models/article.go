@@ -11,6 +11,8 @@ type Author struct {
 	Name         string
 	Role         string
 	Bio          string
+	RoleEN       string
+	BioEN        string
 	AvatarURL    string
 	Twitter      string
 	GitHub       string
@@ -45,7 +47,8 @@ type ContentBlock struct {
 	Benchmark   *BenchmarkData `json:"benchmark,omitempty"`
 }
 
-// Article is one published essay. Tags and Blocks are JSON columns.
+// Article is one published essay. Tags and Blocks are JSON columns. The *_en
+// fields carry the English edition, including its own slug.
 type Article struct {
 	ID              int64
 	Slug            string
@@ -62,6 +65,13 @@ type Article struct {
 	Claps           int
 	Views           int
 	Tier            int
+
+	SlugEN          string
+	TitleEN         string
+	SubtitleEN      string
+	LeadParagraphEN string
+	TagsEN          []string
+	BlocksEN        []ContentBlock
 }
 
 // Comment is one reader reflection under an article.

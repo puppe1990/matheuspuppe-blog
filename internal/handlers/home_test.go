@@ -15,7 +15,7 @@ func newHomeHandler(t *testing.T) *HomeHandler {
 	t.Helper()
 	st := seedTestStore(t)
 	seedFixtureCatalog(t, st)
-	return NewHomeHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+	return NewHomeHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{})
 }
 
 func getHome(t *testing.T, target string, cookies ...*http.Cookie) string {
@@ -110,7 +110,7 @@ func TestHomeHandler_EmptyState(t *testing.T) {
 
 func TestHomeHandler_FirstEditionEmptyState(t *testing.T) {
 	st := setupTestStore(t) // no seeds: the very first boot before any essay
-	h := NewHomeHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+	h := NewHomeHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{})
 
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/", nil))
@@ -138,7 +138,7 @@ func TestHomeHandler_HidesScheduledEssays(t *testing.T) {
 	st := seedTestStore(t)
 	seedFixtureCatalog(t, st)
 	seedScheduledEssay(t, st)
-	h := NewHomeHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+	h := NewHomeHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{})
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rr := httptest.NewRecorder()

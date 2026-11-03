@@ -16,14 +16,6 @@ import (
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
 )
 
-// FilterLink is one pressable filter chip (category or reading time).
-type FilterLink struct {
-	Label  string
-	Href   string
-	Count  int
-	Active bool
-}
-
 type HomeHandler struct {
 	views   *view.Renderer
 	store   store.Store
@@ -36,15 +28,20 @@ func NewHomeHandler(views *view.Renderer, st store.Store, site meta.Site, catalo
 	return &HomeHandler{views: views, store: st, site: site, catalog: catalog, cfg: cfg}
 }
 
-func (h *HomeHandler) t(r *http.Request, key string) string {
-	return i18n.CatalogOr(r, h.catalog).T(key)
+func (h *HomeHandler) t(r *http.Request, key string, args ...any) string {
+	return i18n.CatalogOr(r, h.catalog).T(key, args...)
 }
 
 func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	locale := localeOf(r)
 	articles, err := h.store.ListArticles(r.Context())
 	if err != nil {
 		httpx.ServerError(w, err, h.cfg)
 		return
+	}
+	localized := make([]models.Article, len(articles))
+	for i, article := range articles {
+		localized[i] = editorial.Localize(article, locale)
 	}
 
 	search := strings.TrimSpace(r.URL.Query().Get("q"))
@@ -56,65 +53,28 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	saved := bookmarksFromRequest(r)
 	filtering := editorial.Filtering(search, category, maxMinutes)
-	filtered := editorial.Filter(articles, editorial.FilterOptions{
+	filtered := editorial.Filter(localized, editorial.FilterOptions{
 		Search:     search,
 		Category:   category,
 		MaxMinutes: maxMinutes,
-		OnlySlugs:  nil,
 	})
 	lead, secondary, grid := editorial.Segment(filtered, filtering)
 
 	writeView(w, r, h.views, h.cfg, "app", "home", amarraData(r, h.site, map[string]any{
 		"Title":          h.t(r, "home.title"),
 		"ActiveNav":      "artigos",
-		"EditionDate":    editorial.FormatDate(time.Now()),
-		"TotalArticles":  len(articles),
+		"EditionDate":    editorial.FormatDateIn(time.Now(), locale),
+		"TotalArticles":  len(localized),
 		"TotalResults":   len(filtered),
 		"Filtering":      filtering,
 		"Search":         search,
 		"ActiveCategory": category,
 		"MaxMinutes":     maxMinutes,
-		"CategoryLinks":  categoryLinks(articles, search, category, maxMinutes),
-		"TimeLinks":      timeLinks(search, category, maxMinutes),
-		"ClearHref":      editorial.CategoryHref(category, "", maxMinutes),
-		"Lead":           leadArticleView(lead, saved),
-		"Secondary":      newArticleViews(secondary, saved),
-		"Grid":           newArticleViews(grid, saved),
+		"CategoryLinks":  categoryLinksFor(localized, search, category, maxMinutes, locale),
+		"TimeLinks":      timeLinksFor(search, category, maxMinutes, locale, func(key string) string { return h.t(r, key) }),
+		"ClearHref":      localePath(locale, editorial.CategoryHref(category, "", maxMinutes)),
+		"Lead":           leadArticleView(lead, saved, locale),
+		"Secondary":      newArticleViews(secondary, saved, locale),
+		"Grid":           newArticleViews(grid, saved, locale),
 	}), http.StatusOK)
-}
-
-// categoryLinks builds the segmented caderno bar with live counts; the active
-// search and reading-time filters survive the category switch.
-func categoryLinks(articles []models.Article, search, activeCategory string, maxMinutes int) []FilterLink {
-	counts := editorial.CategoryCounts(articles)
-	links := make([]FilterLink, 0, len(editorial.Categories))
-	for _, category := range editorial.Categories {
-		links = append(links, FilterLink{
-			Label:  category,
-			Href:   editorial.CategoryHref(category, search, maxMinutes),
-			Count:  counts[category],
-			Active: category == activeCategory,
-		})
-	}
-	return links
-}
-
-func timeLinks(search, activeCategory string, maxMinutes int) []FilterLink {
-	options := []struct {
-		label   string
-		minutes int
-	}{
-		{"Todos", 0},
-		{"≤ 5 min", 5},
-		{"≤ 8 min", 8},
-	}
-	links := make([]FilterLink, 0, len(options))
-	for _, option := range options {
-		links = append(links, FilterLink{
-			Label:  option.label,
-			Href:   editorial.CategoryHref(activeCategory, search, option.minutes),
-			Active: maxMinutes == option.minutes,
-		})
-	}
-	return links
 }

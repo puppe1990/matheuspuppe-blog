@@ -7,6 +7,7 @@ import (
 	"github.com/puppe1990/amarra-cais/pkg/cais"
 	"github.com/puppe1990/amarra-cais/pkg/cais/flash"
 	"github.com/puppe1990/amarra-cais/pkg/cais/httpx"
+	"github.com/puppe1990/amarra-cais/pkg/cais/i18n"
 	"github.com/puppe1990/amarra-cais/pkg/cais/validate"
 
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
@@ -16,12 +17,17 @@ import (
 // the dialog on any page, so errors and success both flash and redirect back
 // instead of rendering a page of their own.
 type NewsletterHandler struct {
-	store store.Store
-	cfg   cais.Config
+	store   store.Store
+	catalog *i18n.Catalog
+	cfg     cais.Config
 }
 
-func NewNewsletterHandler(st store.Store, cfg cais.Config) *NewsletterHandler {
-	return &NewsletterHandler{store: st, cfg: cfg}
+func NewNewsletterHandler(st store.Store, catalog *i18n.Catalog, cfg cais.Config) *NewsletterHandler {
+	return &NewsletterHandler{store: st, catalog: catalog, cfg: cfg}
+}
+
+func (h *NewsletterHandler) t(r *http.Request, key string, args ...any) string {
+	return i18n.CatalogOr(r, h.catalog).T(key, args...)
 }
 
 func (h *NewsletterHandler) Post(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +35,7 @@ func (h *NewsletterHandler) Post(w http.ResponseWriter, r *http.Request) {
 	next := sanitizeNext(r.FormValue("next"))
 
 	if err := validate.Email(email); err != nil {
-		flash.Set(w, "error", "Informe um email válido para assinar o boletim.", h.cfg.CookieSecure())
+		flash.Set(w, "error", h.t(r, "newsletter.invalid"), h.cfg.CookieSecure())
 		http.Redirect(w, r, next, http.StatusSeeOther)
 		return
 	}
@@ -39,6 +45,6 @@ func (h *NewsletterHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flash.Set(w, "notice", "Inscrição confirmada. As boas-vindas foram para "+email+".", h.cfg.CookieSecure())
+	flash.Set(w, "notice", h.t(r, "newsletter.confirmed", email), h.cfg.CookieSecure())
 	http.Redirect(w, r, next, http.StatusSeeOther)
 }

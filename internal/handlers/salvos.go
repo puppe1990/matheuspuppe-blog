@@ -12,6 +12,7 @@ import (
 	"github.com/puppe1990/amarra-cais/pkg/cais/meta"
 
 	"github.com/puppe1990/matheuspuppe-blog/internal/editorial"
+	"github.com/puppe1990/matheuspuppe-blog/internal/models"
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
 )
 
@@ -28,7 +29,12 @@ func NewSavedHandler(views *view.Renderer, st store.Store, site meta.Site, catal
 	return &SavedHandler{views: views, store: st, site: site, catalog: catalog, cfg: cfg}
 }
 
+func (h *SavedHandler) t(r *http.Request, key string) string {
+	return i18n.CatalogOr(r, h.catalog).T(key)
+}
+
 func (h *SavedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	locale := localeOf(r)
 	saved := bookmarksFromRequest(r)
 	if saved == nil {
 		// Distinguish "never saved" from "show everything": an empty (non-nil)
@@ -42,6 +48,19 @@ func (h *SavedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Bookmarks are keyed by the canonical (Portuguese) slug; keep them before
+	// localizing so the library works across languages.
+	bookmarked := make([]models.Article, 0, len(saved))
+	for _, article := range articles {
+		if containsSlug(saved, article.Slug) {
+			bookmarked = append(bookmarked, article)
+		}
+	}
+	localized := make([]models.Article, len(bookmarked))
+	for i, article := range bookmarked {
+		localized[i] = editorial.Localize(article, locale)
+	}
+
 	search := strings.TrimSpace(r.URL.Query().Get("q"))
 	category := r.URL.Query().Get("categoria")
 	if category == "" {
@@ -50,16 +69,15 @@ func (h *SavedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	maxMinutes := intParam(r, "tempo", 0)
 
 	filtering := editorial.Filtering(search, category, maxMinutes)
-	filtered := editorial.Filter(articles, editorial.FilterOptions{
+	filtered := editorial.Filter(localized, editorial.FilterOptions{
 		Search:     search,
 		Category:   category,
 		MaxMinutes: maxMinutes,
-		OnlySlugs:  saved,
 	})
 	lead, secondary, grid := editorial.Segment(filtered, filtering)
 
 	writeView(w, r, h.views, h.cfg, "app", "salvos", amarraData(r, h.site, map[string]any{
-		"Title":          "Artigos Salvos · Sintaxe",
+		"Title":          h.t(r, "salvos.title") + " · Sintaxe",
 		"ActiveNav":      "salvos",
 		"SavedCount":     len(saved),
 		"TotalResults":   len(filtered),
@@ -67,12 +85,12 @@ func (h *SavedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"Search":         search,
 		"ActiveCategory": category,
 		"MaxMinutes":     maxMinutes,
-		"CategoryLinks":  categoryLinks(articles, search, category, maxMinutes),
-		"TimeLinks":      timeLinks(search, category, maxMinutes),
-		"ClearHref":      editorial.CategoryHref(category, "", maxMinutes),
-		"Lead":           leadArticleView(lead, saved),
-		"Secondary":      newArticleViews(secondary, saved),
-		"Grid":           newArticleViews(grid, saved),
+		"CategoryLinks":  categoryLinksFor(localized, search, category, maxMinutes, locale),
+		"TimeLinks":      timeLinksFor(search, category, maxMinutes, locale, func(key string) string { return h.t(r, key) }),
+		"ClearHref":      localePath(locale, editorial.CategoryHref(category, "", maxMinutes)),
+		"Lead":           leadArticleView(lead, saved, locale),
+		"Secondary":      newArticleViews(secondary, saved, locale),
+		"Grid":           newArticleViews(grid, saved, locale),
 	}), http.StatusOK)
 }
 

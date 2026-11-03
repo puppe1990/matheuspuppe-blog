@@ -24,7 +24,7 @@ func getPage(t *testing.T, handler http.Handler, target string) *httptest.Respon
 func TestSobreHandler_RendersManifestoAndAuthors(t *testing.T) {
 	st := seedTestStore(t)
 	seedFixtureCatalog(t, st)
-	h := NewSobreHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+	h := NewSobreHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{})
 	rr := getPage(t, h, "/sobre")
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rr.Code)
@@ -45,7 +45,7 @@ func TestSobreHandler_RendersManifestoAndAuthors(t *testing.T) {
 func TestAuthorHandler_RendersColumnist(t *testing.T) {
 	st := seedTestStore(t)
 	seedFixtureCatalog(t, st)
-	h := NewAuthorHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+	h := NewAuthorHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{})
 	rr := httptest.NewRecorder()
 	h.Serve(rr, httptest.NewRequest(http.MethodGet, "/autor/matheus-puppe", nil), "matheus-puppe")
 
@@ -63,7 +63,7 @@ func TestAuthorHandler_RendersColumnist(t *testing.T) {
 
 func TestAuthorHandler_MissingIs404(t *testing.T) {
 	st := seedTestStore(t)
-	h := NewAuthorHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+	h := NewAuthorHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{})
 	rr := httptest.NewRecorder()
 	h.Serve(rr, httptest.NewRequest(http.MethodGet, "/autor/nao-existe", nil), "nao-existe")
 	if rr.Code != http.StatusNotFound {
@@ -84,7 +84,7 @@ func TestNotFoundHandler_RendersDesigned404(t *testing.T) {
 
 func TestNewsletterHandler_Subscribes(t *testing.T) {
 	st := setupTestStore(t)
-	h := NewNewsletterHandler(st, cais.Config{})
+	h := NewNewsletterHandler(st, appi18n.NewCatalog("pt"), cais.Config{})
 	req, rr := postForm(t, "/newsletter", url.Values{"email": {"Leitor@Sintaxe.tech"}, "next": {"/sobre"}})
 	h.Post(rr, req)
 
@@ -105,7 +105,7 @@ func TestNewsletterHandler_Subscribes(t *testing.T) {
 
 func TestNewsletterHandler_RejectsInvalidEmail(t *testing.T) {
 	st := setupTestStore(t)
-	h := NewNewsletterHandler(st, cais.Config{})
+	h := NewNewsletterHandler(st, appi18n.NewCatalog("pt"), cais.Config{})
 	req, rr := postForm(t, "/newsletter", url.Values{"email": {"nao-e-email"}})
 	h.Post(rr, req)
 
@@ -197,7 +197,7 @@ func TestSitemapAndFeed_HideScheduledEssays(t *testing.T) {
 	}
 
 	// And the librarian's page stays empty until the day arrives.
-	author := NewAuthorHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+	author := NewAuthorHandler(setupTestViews(t), st, testSite(), appi18n.NewCatalog("pt"), cais.Config{})
 	rr := httptest.NewRecorder()
 	author.Serve(rr, httptest.NewRequest(http.MethodGet, "/autor/"+scheduled.Author.Slug, nil), scheduled.Author.Slug)
 	if rr.Code != http.StatusOK {

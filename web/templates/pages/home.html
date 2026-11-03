@@ -1,13 +1,14 @@
 {{ define "content" }}
+{{ $home := "/" }}{{ if eq .Lang "en" }}{{ $home = "/en" }}{{ end }}
 <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
   <header class="border-b border-foam/10 pb-6">
     <div class="flex items-end justify-between gap-6">
       <div>
         <span class="mb-3 block h-0.5 w-12 bg-copper" aria-hidden="true"></span>
         <p class="text-xs text-foam/55">{{ .EditionDate }}</p>
-        <h1 class="mt-2 font-serif text-3xl font-medium leading-tight tracking-tight text-foam sm:text-4xl lg:text-5xl">Ensaios sobre sistemas, inteligência artificial e infraestrutura</h1>
+        <h1 class="mt-2 font-serif text-3xl font-medium leading-tight tracking-tight text-foam sm:text-4xl lg:text-5xl">{{ t "home.headline" }}</h1>
       </div>
-      <p class="hidden shrink-0 pb-1 text-xs tabular-nums text-foam/55 sm:block">{{ .TotalArticles }} {{ if eq .TotalArticles 1 }}ensaio{{ else }}ensaios{{ end }}</p>
+      <p class="hidden shrink-0 pb-1 text-xs tabular-nums text-foam/55 sm:block">{{ .TotalArticles }} {{ if eq .TotalArticles 1 }}{{ t "home.essay_one" }}{{ else }}{{ t "home.essay_many" }}{{ end }}</p>
     </div>
   </header>
 
@@ -16,33 +17,33 @@
   {{ if eq .TotalResults 0 }}
   {{ if eq .TotalArticles 0 }}
   <div class="rounded-xl border border-foam/10 p-8 py-16 text-center sm:py-20">
-    <h3 class="font-serif text-xl font-medium text-foam">A primeira edição está em preparação</h3>
-    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">Os primeiros ensaios estão sendo escritos. Assine o boletim e receba a edição no dia em que ela sair.</p>
+    <h3 class="font-serif text-xl font-medium text-foam">{{ t "home.empty.title" }}</h3>
+    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">{{ t "home.empty.body" }}</p>
     <div class="mt-6">
-      <button type="button" data-amarra-dialog-open class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">Assinar boletim</button>
+      <button type="button" data-amarra-dialog-open class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">{{ t "home.empty.cta" }}</button>
     </div>
   </div>
   {{ else }}
   <div class="rounded-xl border border-foam/10 p-8 py-16 text-center sm:py-20">
-    <h3 class="font-serif text-xl font-medium text-foam">Nenhuma publicação encontrada</h3>
-    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">Nada corresponde a "{{ .Search }}" com os filtros atuais.</p>
+    <h3 class="font-serif text-xl font-medium text-foam">{{ t "home.search.title" }}</h3>
+    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">{{ t "home.search.body" .Search }}</p>
     <div class="mt-6">
-      <a href="/" class="inline-flex h-9 items-center rounded-lg border border-foam/10 px-4 text-[13px] font-medium text-foam/80 transition-colors hover:bg-foam/5 hover:text-foam">Limpar filtros</a>
+      <a href="{{ $home }}" class="inline-flex h-9 items-center rounded-lg border border-foam/10 px-4 text-[13px] font-medium text-foam/80 transition-colors hover:bg-foam/5 hover:text-foam">{{ t "home.search.cta" }}</a>
     </div>
   </div>
   {{ end }}
   {{ else }}
   <div class="space-y-12">
     {{ if .Lead }}
-    <section aria-label="Ensaio principal">
+    <section>
       {{ template "lead_article" (dict "A" .Lead "Next" .CurrentPath "CSRFToken" .CSRFToken) }}
     </section>
     {{ end }}
 
     {{ if .Secondary }}
-    <section aria-label="Destaques">
+    <section>
       <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">
-        <h2 class="text-[13px] font-medium text-foam/60">Destaques</h2>
+        <h2 class="text-[13px] font-medium text-foam/60">{{ t "home.featured" }}</h2>
       </div>
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         {{ range .Secondary }}
@@ -53,9 +54,9 @@
     {{ end }}
 
     {{ if .Grid }}
-    <section aria-label="Mais ensaios">
+    <section>
       <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">
-        <h2 class="text-[13px] font-medium text-foam/60">Mais ensaios</h2>
+        <h2 class="text-[13px] font-medium text-foam/60">{{ t "home.more" }}</h2>
         <span class="text-xs tabular-nums text-foam/55">{{ len .Grid }}</span>
       </div>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
