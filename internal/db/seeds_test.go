@@ -43,22 +43,25 @@ func TestRunSeeds_PublishesTheFirstEdition(t *testing.T) {
 	if author.AvatarURL != "/static/img/author-matheus.jpg" {
 		t.Fatalf("avatar = %q", author.AvatarURL)
 	}
-	if author.ArticleCount != 2 {
-		t.Fatalf("article count = %d, want 2", author.ArticleCount)
+	if author.ArticleCount != 3 {
+		t.Fatalf("article count = %d, want 3", author.ArticleCount)
 	}
 
 	articles, err := s.ListArticles(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(articles) != 2 {
+	if len(articles) != 3 {
 		t.Fatalf("articles = %d, want the published edition", len(articles))
 	}
-	if articles[0].Slug != "captura-de-trafego-do-browser-para-agentes" {
-		t.Fatalf("newest article = %q, want the network listener essay", articles[0].Slug)
+	if articles[0].Slug != "por-que-eu-construi-o-amarra-cais" {
+		t.Fatalf("newest article = %q, want the amarra essay", articles[0].Slug)
+	}
+	if articles[1].Slug != "captura-de-trafego-do-browser-para-agentes" {
+		t.Fatalf("second article = %q, want the network listener essay", articles[1].Slug)
 	}
 
-	translation := articles[1]
+	translation := articles[2]
 	if translation.Slug != "traducao-epubs-llms-fila-por-capitulo" {
 		t.Fatalf("article = %q, want the translation essay", translation.Slug)
 	}
@@ -75,7 +78,7 @@ func TestRunSeeds_PublishesTheFirstEdition(t *testing.T) {
 		t.Fatalf("english edition incomplete: %+v", translation)
 	}
 
-	listener := articles[0]
+	listener := articles[1]
 	if listener.SlugEN != "browser-traffic-capture-for-agents" {
 		t.Fatalf("network listener english slug = %q", listener.SlugEN)
 	}
@@ -150,6 +153,36 @@ func TestNetworkListener_CitesThePublicRepo(t *testing.T) {
 	}
 }
 
+func TestAmarraEssay_CitesTheFrameworkRepo(t *testing.T) {
+	const repo = "https://github.com/puppe1990/amarra-cais"
+
+	citations, repoLinks := 0, 0
+	for _, block := range amarraEssay().Blocks {
+		if strings.HasPrefix(block.SourceURL, repo) {
+			citations++
+			if block.SourceURL == repo {
+				repoLinks++
+			}
+		}
+	}
+	if citations != 5 {
+		t.Fatalf("citations = %d, want 2 codes + 2 quotes + 1 repo", citations)
+	}
+	if repoLinks != 1 {
+		t.Fatalf("repo links = %d, want 1", repoLinks)
+	}
+
+	english := 0
+	for _, block := range amarraEssayEn().Blocks {
+		if strings.HasPrefix(block.SourceURL, repo) {
+			english++
+		}
+	}
+	if english != citations {
+		t.Fatalf("english citations = %d, want %d", english, citations)
+	}
+}
+
 func TestRunSeeds_PrunesCatalogRowsThatLeftTheSeeds(t *testing.T) {
 	s := newTestStore(t)
 	if err := RunSeeds(s); err != nil {
@@ -183,15 +216,21 @@ func TestRunSeeds_PrunesCatalogRowsThatLeftTheSeeds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(articles) != 2 {
-		t.Fatalf("catalog after reseed = %d articles, want the two seeded essays", len(articles))
+	if len(articles) != 3 {
+		t.Fatalf("catalog after reseed = %d articles, want the three seeded essays", len(articles))
 	}
 	slugs := map[string]bool{}
 	for _, article := range articles {
 		slugs[article.Slug] = true
 	}
-	if !slugs["traducao-epubs-llms-fila-por-capitulo"] || !slugs["captura-de-trafego-do-browser-para-agentes"] {
-		t.Fatalf("catalog after reseed = %+v, want both seeded essays", slugs)
+	for _, slug := range []string{
+		"traducao-epubs-llms-fila-por-capitulo",
+		"captura-de-trafego-do-browser-para-agentes",
+		"por-que-eu-construi-o-amarra-cais",
+	} {
+		if !slugs[slug] {
+			t.Fatalf("catalog after reseed = %+v, missing %q", slugs, slug)
+		}
 	}
 	authors, err := s.ListAuthors(ctx)
 	if err != nil {

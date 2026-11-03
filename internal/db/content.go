@@ -26,6 +26,7 @@ func seedArticles() []models.Article {
 	return []models.Article{
 		primeiroEnsaio(),
 		networkListener(),
+		amarraEssay(),
 	}
 }
 
