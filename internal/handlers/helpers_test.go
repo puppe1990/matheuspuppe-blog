@@ -14,7 +14,6 @@ import (
 	"github.com/puppe1990/amarra-cais/pkg/amarra/view"
 	"github.com/puppe1990/amarra-cais/pkg/cais/meta"
 
-	"github.com/puppe1990/matheuspuppe-blog/internal/db"
 	appi18n "github.com/puppe1990/matheuspuppe-blog/internal/i18n"
 	"github.com/puppe1990/matheuspuppe-blog/internal/models"
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
@@ -64,12 +63,17 @@ func setupTestStore(t *testing.T) store.Store {
 	return s
 }
 
-// seedTestStore gives handler tests the real published catalog, so assertions
-// can name actual essays.
+// seedTestStore plants only the columnist; handler tests render their own
+// fixtures, so assertions never depend on production editorial copy.
 func seedTestStore(t *testing.T) store.Store {
 	t.Helper()
 	s := setupTestStore(t)
-	if err := db.RunSeeds(s); err != nil {
+	if _, err := s.UpsertAuthor(context.Background(), models.Author{
+		Slug:      "matheus-puppe",
+		Name:      "Matheus Puppe",
+		Role:      "Engenheiro de software & fundador da Gestão Bem",
+		AvatarURL: "/static/img/author-matheus.jpg",
+	}); err != nil {
 		t.Fatal(err)
 	}
 	return s

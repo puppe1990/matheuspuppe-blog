@@ -20,7 +20,7 @@ func newTestStore(t *testing.T) *store.SQLiteStore {
 	return s
 }
 
-func TestRunSeeds_PublishesOnlyTheColumnist(t *testing.T) {
+func TestRunSeeds_PublishesTheFirstEdition(t *testing.T) {
 	s := newTestStore(t)
 	if err := RunSeeds(s); err != nil {
 		t.Fatal(err)
@@ -41,16 +41,25 @@ func TestRunSeeds_PublishesOnlyTheColumnist(t *testing.T) {
 	if author.AvatarURL != "/static/img/author-matheus.jpg" {
 		t.Fatalf("avatar = %q", author.AvatarURL)
 	}
-	if author.ArticleCount != 0 {
-		t.Fatalf("article count = %d, want 0", author.ArticleCount)
+	if author.ArticleCount != 1 {
+		t.Fatalf("article count = %d, want 1", author.ArticleCount)
 	}
 
 	articles, err := s.ListArticles(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(articles) != 0 {
-		t.Fatalf("articles = %d, want an empty catalog", len(articles))
+	if len(articles) != 1 {
+		t.Fatalf("articles = %d, want the first edition", len(articles))
+	}
+	if articles[0].Slug != "traducao-epubs-llms-fila-por-capitulo" {
+		t.Fatalf("article = %q, want the translation essay", articles[0].Slug)
+	}
+	if articles[0].Author.Slug != "matheus-puppe" {
+		t.Fatalf("article author = %q", articles[0].Author.Slug)
+	}
+	if len(articles[0].Blocks) == 0 {
+		t.Fatalf("first essay has no content blocks")
 	}
 }
 
@@ -87,8 +96,8 @@ func TestRunSeeds_PrunesCatalogRowsThatLeftTheSeeds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(articles) != 0 {
-		t.Fatalf("orphan essay survived the reseed: %d articles", len(articles))
+	if len(articles) != 1 || articles[0].Slug != "traducao-epubs-llms-fila-por-capitulo" {
+		t.Fatalf("catalog after reseed = %+v, want only the seeded essay", articles)
 	}
 	authors, err := s.ListAuthors(ctx)
 	if err != nil {

@@ -1,6 +1,6 @@
 # Sintaxe (matheuspuppe-blog) — AI Conventions
 
-Jornal de tecnologia da Sintaxe em Amarra-cais. Host `sintaxe.apps.gestaobem.com` (Cleat id 239, slug `matheuspuppe-blog`, porta 4229). Repo `puppe1990/matheuspuppe-blog` (público). O catálogo editorial vive em `internal/db/content.go` (colunista único, Matheus Puppe; ensaios entram conforme são escritos); fixtures de teste vêm de `internal/testdata` (gofakeit, seed fixo) — esse pacote não importa `internal/db`.
+Jornal de tecnologia da Sintaxe em Amarra-cais. Host `sintaxe.apps.gestaobem.com` (Cleat id 239, slug `matheuspuppe-blog`, porta 4229). Repo `puppe1990/matheuspuppe-blog` (público). O catálogo editorial vive em `internal/db/content.go` (colunista único, Matheus Puppe; o primeiro ensaio já está publicado, os próximos entram conforme são escritos); fixtures de teste vêm de `internal/testdata` (gofakeit, seed fixo) — esse pacote não importa `internal/db`.
 
 Primary reader is often an LLM agent. Prefer small greps, small modules, and headless tests.
 

@@ -109,7 +109,7 @@ func TestHomeHandler_EmptyState(t *testing.T) {
 }
 
 func TestHomeHandler_FirstEditionEmptyState(t *testing.T) {
-	st := seedTestStore(t) // only the columnist, no essays yet
+	st := setupTestStore(t) // no seeds: the very first boot before any essay
 	h := NewHomeHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
 
 	rr := httptest.NewRecorder()

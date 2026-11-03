@@ -18,11 +18,11 @@ func seedAuthors() []models.Author {
 	}
 }
 
-// seedArticles is the published catalog: empty on purpose while the first
-// edition is being written. Scheduled essays enter here with a future
-// PublishedAt and appear on their day without another deploy.
+// seedArticles is the published catalog. The first essay is live; the next
+// ones enter here as they are written, and scheduling is just a PublishedAt in
+// the future.
 func seedArticles() []models.Article {
-	return nil
+	return []models.Article{primeiroEnsaio()}
 }
 
 // seedComment pairs a starter comment with its article slug so RunSeeds can
@@ -34,4 +34,10 @@ type seedComment struct {
 
 func seedComments() []seedComment {
 	return nil
+}
+
+// authorRef points an article at its columnist; RunSeeds resolves the slug to
+// the row id before the upsert.
+func authorRef(slug string) models.Author {
+	return models.Author{Slug: slug}
 }
