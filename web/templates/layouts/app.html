@@ -82,18 +82,16 @@
             </a>
             <a href="{{ $about }}" class="border-b-2 pb-1 transition-colors {{ if eq .ActiveNav "sobre" }}border-copper text-foam{{ else }}border-transparent text-foam/60 hover:text-foam{{ end }}">{{ t "nav.sobre" }}</a>
           </nav>
-          <div class="flex items-center gap-3">
-            {{ if eq .Lang "en" }}
-            <div class="flex items-center gap-1.5 text-xs font-medium">
-              <a href="{{ .AltURL }}" hreflang="pt-BR" class="text-foam/60 transition-colors hover:text-foam">PT</a>
-              <span class="text-foam" aria-current="true">EN</span>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex items-center rounded-lg border border-foam/10 p-0.5 text-xs font-medium" role="group" aria-label="Idioma / Language">
+              {{ if eq .Lang "en" }}
+              <a href="{{ .AltURL }}" hreflang="pt-BR" class="rounded-md px-2.5 py-2.5 text-foam/60 transition-colors hover:bg-foam/5 hover:text-foam sm:px-3">PT</a>
+              <span class="rounded-md bg-foam/10 px-2.5 py-2.5 text-foam sm:px-3" aria-current="true">EN</span>
+              {{ else }}
+              <span class="rounded-md bg-foam/10 px-2.5 py-2.5 text-foam sm:px-3" aria-current="true">PT</span>
+              {{ if .AltURL }}<a href="{{ .AltURL }}" hreflang="en" class="rounded-md px-2.5 py-2.5 text-foam/60 transition-colors hover:bg-foam/5 hover:text-foam sm:px-3">EN</a>{{ end }}
+              {{ end }}
             </div>
-            {{ else }}
-            <div class="flex items-center gap-1.5 text-xs font-medium">
-              <span class="text-foam" aria-current="true">PT</span>
-              {{ if .AltURL }}<a href="{{ .AltURL }}" hreflang="en" class="text-foam/60 transition-colors hover:text-foam">EN</a>{{ end }}
-            </div>
-            {{ end }}
             <button type="button" class="rounded-lg p-2 text-foam/60 transition-colors hover:bg-foam/5 hover:text-foam" amarra-hook="theme" aria-label="{{ t "layout.theme_light" }}" title="{{ t "layout.theme_light" }}" aria-pressed="false" data-amarra-theme-key="amarra-theme" data-amarra-theme-color="#f7f4ee" data-amarra-theme-color-off="#161513" data-amarra-theme-on-label="{{ t "layout.theme_dark" }}" data-amarra-theme-off-label="{{ t "layout.theme_light" }}">
               <span class="[html.light_&]:hidden">{{ template "icon_sun" . }}</span>
               <span class="hidden [html.light_&]:block">{{ template "icon_moon" . }}</span>
@@ -101,7 +99,11 @@
             <a href="{{ $saved }}" class="rounded-lg p-2 text-foam/60 hover:text-foam md:hidden" aria-label="{{ t "layout.saved_aria" }}">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
             </a>
-            <button type="button" data-amarra-dialog-open class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">{{ t "layout.newsletter" }}</button>
+            <button type="button" data-amarra-dialog-open class="inline-flex h-9 items-center rounded-lg bg-foam px-3 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90 sm:px-4">
+              <span class="hidden sm:inline">{{ t "layout.newsletter" }}</span>
+              <span class="sm:hidden" aria-hidden="true">{{ template "icon_mail" . }}</span>
+              <span class="sr-only sm:hidden">{{ t "layout.newsletter" }}</span>
+            </button>
           </div>
         </div>
       </header>
