@@ -117,6 +117,13 @@ func TestArticle_PortugueseTogglePointsToEnglish(t *testing.T) {
 	if !strings.Contains(rec.Body.String(), `aria-current="true">PT</span>`) {
 		t.Fatal("portuguese edition does not mark PT as the active language")
 	}
+	// Snippets cite the public repository, file and line included.
+	if !strings.Contains(rec.Body.String(), `https://github.com/puppe1990/epub-translator/blob/a4fa7ce/internal/app/app.go#L149-L163`) {
+		t.Fatal("code block lost its GitHub citation")
+	}
+	if !strings.Contains(rec.Body.String(), `>internal/app/app.go:149</a>`) {
+		t.Fatal("code block lost the source label")
+	}
 }
 
 func TestArticle_WithoutTranslationHasNoToggle(t *testing.T) {

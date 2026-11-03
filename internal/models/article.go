@@ -45,6 +45,10 @@ type ContentBlock struct {
 	AuthorQuote string         `json:"author_quote,omitempty"`
 	Items       []string       `json:"items,omitempty"`
 	Benchmark   *BenchmarkData `json:"benchmark,omitempty"`
+	// SourceURL/SourceLabel citam onde o trecho (código ou comentário) vive no
+	// repositório público; o leitor confere em vez de acreditar no artigo.
+	SourceURL   string `json:"source_url,omitempty"`
+	SourceLabel string `json:"source_label,omitempty"`
 }
 
 // Article is one published essay. Tags and Blocks are JSON columns. The *_en

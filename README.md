@@ -22,6 +22,10 @@ O Sintaxe é bilíngue por caminho: a raiz é pt-BR e `/en` é a edição ingles
 
 Para publicar a tradução de um ensaio novo, preencha os campos `*EN` (inclusive `SlugEN`) no arquivo `internal/db/content_articles_*.go` — a edição inglesa entra no mesmo deploy.
 
+## Citar código do repositório
+
+Blocos de código e trechos citados apontam para o repo público: `SourceURL` (link `blob/<commit>/arquivo#Lx-Ly`) e `SourceLabel` (`internal/app/app.go:149`) no `models.ContentBlock`. Parágrafos com `SourceURL` ganham o link no fim (é assim que o ensaio mostra `github.com/puppe1990/epub-translator`), e a atribuição de uma citação leva o mesmo link depois do travessão.
+
 ## Agendar posts
 
 Escreva o ensaio em `internal/db/content_articles_*.go` com `PublishedAt` no futuro — a visibilidade é por relógio: capa, página do autor, sitemap, RSS e a rota direta escondem o texto até o instante chegar. Como os seeds rodam no boot, o post **aparece sozinho no dia, sem novo deploy**.

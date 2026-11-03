@@ -3,9 +3,11 @@ package db
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/puppe1990/matheuspuppe-blog/internal/models"
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
 	"github.com/puppe1990/matheuspuppe-blog/internal/testdata"
 )
@@ -69,6 +71,35 @@ func TestRunSeeds_PublishesTheFirstEdition(t *testing.T) {
 	}
 	if author.RoleEN == "" || author.BioEN == "" {
 		t.Fatalf("author english fields empty: %+v", author)
+	}
+}
+
+func TestPrimeiroEnsaio_CitesThePublicRepo(t *testing.T) {
+	const repo = "https://github.com/puppe1990/epub-translator"
+
+	countCitations := func(blocks []models.ContentBlock) (codeLinks, repoLinks int) {
+		for _, block := range blocks {
+			if strings.HasPrefix(block.SourceURL, repo+"/blob/") {
+				codeLinks++
+			}
+			if block.SourceURL == repo {
+				repoLinks++
+			}
+		}
+		return codeLinks, repoLinks
+	}
+
+	codeLinks, repoLinks := countCitations(primeiroEnsaio().Blocks)
+	if codeLinks != 4 {
+		t.Fatalf("citations to the repo history = %d, want 2 codes + 2 comments", codeLinks)
+	}
+	if repoLinks != 1 {
+		t.Fatalf("repo links = %d, want 1", repoLinks)
+	}
+
+	englishCode, englishRepo := countCitations(primeiroEnsaioEn().Blocks)
+	if englishCode != codeLinks || englishRepo != repoLinks {
+		t.Fatalf("english citations = %d codes + %d repo, want %d + %d", englishCode, englishRepo, codeLinks, repoLinks)
 	}
 }
 

@@ -153,7 +153,9 @@ func seedFixtureCatalog(t *testing.T, st store.Store) models.Article {
 				{Type: "heading2", Text: "O Problema Central"},
 				{Type: "paragraph", Text: "Um parágrafo de corpo com argumento técnico."},
 				{Type: "quote", Text: "A pergunta certa vale mais que a resposta rápida.", AuthorQuote: "Matheus Puppe"},
-				{Type: "code", Language: "go", Code: "func main() {}", Caption: "Um exemplo em Go"},
+				{Type: "code", Language: "go", Code: "func main() {}", Caption: "Um exemplo em Go",
+					SourceURL:   "https://github.com/puppe1990/epub-translator/blob/a4fa7ce/internal/app/app.go#L149-L163",
+					SourceLabel: "internal/app/app.go:149"},
 				{Type: "interactive-benchmark", Benchmark: &models.BenchmarkData{
 					Title:       "Benchmark do Ensaio",
 					Description: "Comparativo entre abordagens.",
