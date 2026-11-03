@@ -111,3 +111,23 @@ func TestHomeHandler_SavedStateMarksCards(t *testing.T) {
 		t.Errorf("saved cookie did not mark any card")
 	}
 }
+
+func TestHomeHandler_HidesScheduledEssays(t *testing.T) {
+	st := seedTestStore(t)
+	seedScheduledEssay(t, st)
+	h := NewHomeHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", rr.Code)
+	}
+	body := rr.Body.String()
+	if strings.Contains(body, "Ensaio Agendado Confidencial") {
+		t.Errorf("scheduled essay visible in the feed before its day")
+	}
+	if !strings.Contains(body, "6 Ensaios Ativos") {
+		t.Errorf("essay counter must ignore scheduled essays (want 6)")
+	}
+}

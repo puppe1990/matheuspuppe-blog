@@ -21,9 +21,18 @@ SELECT ar.id, ar.slug, ar.title, ar.subtitle, ar.lead_paragraph, ar.category,
 FROM articles ar
 JOIN authors a ON a.id = ar.author_id`
 
+// publishedNow is the scheduling cutoff. Seeds ship scheduled essays ahead of
+// time (published_at in the future) and every read hides them until the
+// instant arrives, so a post appears by clock on its day — no redeploy. Stored
+// timestamps are RFC3339 UTC, so lexicographic <= is a correct instant compare.
+func publishedNow() string {
+	return time.Now().UTC().Format(time.RFC3339)
+}
+
 func (s *SQLiteStore) ListArticles(ctx context.Context) ([]models.Article, error) {
 	rows, err := s.db.QueryContext(ctx, articleSelect+`
-ORDER BY ar.published_at DESC, ar.id DESC`)
+WHERE ar.published_at <= ?
+ORDER BY ar.published_at DESC, ar.id DESC`, publishedNow())
 	if err != nil {
 		return nil, fmt.Errorf("list articles: %w", err)
 	}
@@ -33,8 +42,8 @@ ORDER BY ar.published_at DESC, ar.id DESC`)
 
 func (s *SQLiteStore) ListArticlesByAuthor(ctx context.Context, authorID int64) ([]models.Article, error) {
 	rows, err := s.db.QueryContext(ctx, articleSelect+`
-WHERE ar.author_id = ?
-ORDER BY ar.published_at DESC, ar.id DESC`, authorID)
+WHERE ar.author_id = ? AND ar.published_at <= ?
+ORDER BY ar.published_at DESC, ar.id DESC`, authorID, publishedNow())
 	if err != nil {
 		return nil, fmt.Errorf("list articles by author %d: %w", authorID, err)
 	}
@@ -44,7 +53,7 @@ ORDER BY ar.published_at DESC, ar.id DESC`, authorID)
 
 func (s *SQLiteStore) FindArticleBySlug(ctx context.Context, slug string) (models.Article, error) {
 	rows, err := s.db.QueryContext(ctx, articleSelect+`
-WHERE ar.slug = ?`, slug)
+WHERE ar.slug = ? AND ar.published_at <= ?`, slug, publishedNow())
 	if err != nil {
 		return models.Article{}, fmt.Errorf("find article %q: %w", slug, err)
 	}

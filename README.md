@@ -10,6 +10,16 @@ O blog editorial [Sintaxe](https://matheuspuppe-blog.apps.gestaobem.com) reconst
 - **Playground** (`/laboratorio`): simulador de runtimes (Rust/Go/Node/Python) — a matemática é server-side (`internal/benchmark`), os sliders só atualizam rótulos e disparam um GET.
 - **Manifesto** (`/sobre`), **página do colunista** (`/autor/{slug}`), **boletim** por e-mail (SQLite) e `sitemap.xml` / `rss.xml` / `robots.txt` sem cookies.
 
+## Agendar posts
+
+Escreva o ensaio em `internal/db/content_articles_*.go` com `PublishedAt` no futuro — a visibilidade é por relógio: capa, página do autor, sitemap, RSS e a rota direta escondem o texto até o instante chegar. Como os seeds rodam no boot, o post **aparece sozinho no dia, sem novo deploy**.
+
+```go
+PublishedAt: time.Date(2026, 11, 10, 9, 0, 0, 0, time.UTC), // 06:00 BRT do dia 10
+```
+
+Para meia-noite de Brasília use hora `3` (03:00Z). Um ensaio agendado nunca conta nos "Ensaios Ativos" nem aceita comentário/aplauso antes da hora.
+
 ## Quick start
 
 ```bash

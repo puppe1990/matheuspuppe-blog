@@ -43,6 +43,7 @@ Markers de geradores (não remover): `registerRoutes`, `Close() error`, `// cais
 ## Convenções deste app
 
 - **Sem auth**: tudo público; o único estado pessoal é o cookie `sintaxe_salvos` (HttpOnly, cap de 100 slugs em `editorial`). `next` de todo form passa por `sanitizeNext` (mesmo-site absoluto apenas).
+- **Agendamento**: `published_at` no futuro fica invisível (capa, página do autor, sitemap, RSS e rota direta → 404) até o instante — o corte é `published_at <= now` no store (`publishedNow`). Como os seeds rodam no boot, o post **entra sozinho no dia, sem novo deploy**. Hora em UTC: meia-noite de Brasília = `03:00Z`; manhã editorial = `09:00Z` (06:00 BRT).
 - **Templates**: Amarra Views (`view.Write`), kit `<.form>`/`<.input>`/`<.button>`/`<.flash />`. Só **partials flat** carregam; `pages/*/*.html` teria um nível de nesting (não usado aqui). Sem funções custom de template — datas/percentuais são pré-computados nos view-models.
 - **Drive**: links/forms são interceptados; POSTs redirecionam 303 ("flash + redirect"). GET de form serializa os campos na query (`?q=&categoria=&tempo=`). Não checar `HX-Request`.
 - **CSS/Tailwind**: classes JS-only (`amarra-focus`, `amarra-toast`) e as cores dos runtimes (safelist) não aparecem no HTML escaneado — mantenha no `safelist` do `tailwind.config.js` ou o Tailwind purga a regra. A paleta vem das vars `--amarra-*` em `input.css` (`:root` escuro, `html.light` claro).

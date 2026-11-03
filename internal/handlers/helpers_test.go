@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -8,13 +9,16 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/puppe1990/amarra-cais/pkg/amarra/view"
 	"github.com/puppe1990/amarra-cais/pkg/cais/meta"
 
 	"github.com/puppe1990/matheuspuppe-blog/internal/db"
 	appi18n "github.com/puppe1990/matheuspuppe-blog/internal/i18n"
+	"github.com/puppe1990/matheuspuppe-blog/internal/models"
 	"github.com/puppe1990/matheuspuppe-blog/internal/store"
+	"github.com/puppe1990/matheuspuppe-blog/internal/testdata"
 )
 
 func testSite() meta.Site {
@@ -69,6 +73,28 @@ func seedTestStore(t *testing.T) store.Store {
 		t.Fatal(err)
 	}
 	return s
+}
+
+// seedScheduledEssay stores one future-dated essay under a distinctive title,
+// the fixture for the scheduling tests.
+func seedScheduledEssay(t *testing.T, st store.Store) models.Article {
+	t.Helper()
+	ctx := context.Background()
+	f := testdata.New()
+	author := testdata.Author(f, 9)
+	authorID, err := st.UpsertAuthor(ctx, author)
+	if err != nil {
+		t.Fatal(err)
+	}
+	author.ID = authorID
+
+	article := testdata.Article(f, 9, author, time.Now().UTC().AddDate(0, 0, 3))
+	article.PublishedAt = time.Now().UTC().AddDate(0, 0, 3)
+	article.Title = "Ensaio Agendado Confidencial"
+	if _, err := st.UpsertArticle(ctx, article); err != nil {
+		t.Fatal(err)
+	}
+	return article
 }
 
 // postForm builds the request and the recorder, so handler tests can call

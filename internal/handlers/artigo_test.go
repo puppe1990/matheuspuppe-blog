@@ -168,3 +168,14 @@ func TestArticleHandler_ClapPost(t *testing.T) {
 		t.Fatalf("claps = %d, want 343", article.Claps)
 	}
 }
+
+func TestArticleHandler_ShowScheduledIs404(t *testing.T) {
+	h, st := newArticleHandler(t)
+	scheduled := seedScheduledEssay(t, st)
+
+	rr := httptest.NewRecorder()
+	h.Show(rr, httptest.NewRequest(http.MethodGet, "/artigo/"+scheduled.Slug, nil), scheduled.Slug)
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("scheduled essay = %d, want 404 before its day", rr.Code)
+	}
+}

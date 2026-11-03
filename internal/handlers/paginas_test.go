@@ -174,3 +174,29 @@ func TestFeedHandler_ServesRSS(t *testing.T) {
 		t.Errorf("feed items = %d, want 6", strings.Count(body, "<item>"))
 	}
 }
+
+func TestSitemapAndFeed_HideScheduledEssays(t *testing.T) {
+	st := seedTestStore(t)
+	scheduled := seedScheduledEssay(t, st)
+
+	sitemap := NewSitemapHandler(st, testSite(), cais.Config{})
+	if body := getPage(t, sitemap, "/sitemap.xml").Body.String(); strings.Contains(body, scheduled.Slug) {
+		t.Errorf("sitemap leaked the scheduled essay")
+	}
+
+	feed := NewFeedHandler(st, testSite(), cais.Config{})
+	if body := getPage(t, feed, "/rss.xml").Body.String(); strings.Contains(body, "Ensaio Agendado Confidencial") {
+		t.Errorf("feed leaked the scheduled essay")
+	}
+
+	// And the librarian's page stays empty until the day arrives.
+	author := NewAuthorHandler(setupTestViews(t), st, testSite(), appi18n.DefaultCatalog(), cais.Config{})
+	rr := httptest.NewRecorder()
+	author.Serve(rr, httptest.NewRequest(http.MethodGet, "/autor/"+scheduled.Author.Slug, nil), scheduled.Author.Slug)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("author page = %d, want 200", rr.Code)
+	}
+	if body := rr.Body.String(); strings.Contains(body, "Ensaio Agendado Confidencial") {
+		t.Errorf("author page leaked the scheduled essay")
+	}
+}
