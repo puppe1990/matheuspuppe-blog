@@ -9,6 +9,13 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	out := flag.String("out", "web/static/og.png", "PNG path")
 	host := flag.String("host", "sintaxe.apps.gestaobem.com", "hostname painted on the card")
 	title := flag.String("title", "", "if set, paint an article card with this headline")
@@ -23,12 +30,11 @@ func main() {
 
 	f, err := os.Create(*out)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "create %s: %v\n", *out, err)
-		os.Exit(1)
+		return fmt.Errorf("create %s: %w", *out, err)
 	}
 	defer func() { _ = f.Close() }()
 	if err := ogcard.WritePNG(f, card); err != nil {
-		fmt.Fprintf(os.Stderr, "write png: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("write png: %w", err)
 	}
+	return nil
 }
