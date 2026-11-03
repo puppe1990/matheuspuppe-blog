@@ -20,11 +20,13 @@ func seedAuthors() []models.Author {
 	}
 }
 
-// seedArticles is the published catalog. The first essay is live; the next
-// ones enter here as they are written, and scheduling is just a PublishedAt in
-// the future.
+// seedArticles is the published catalog. The essays enter here as they are
+// written, and scheduling is just a PublishedAt in the future.
 func seedArticles() []models.Article {
-	return []models.Article{primeiroEnsaio()}
+	return []models.Article{
+		primeiroEnsaio(),
+		networkListener(),
+	}
 }
 
 // seedComment pairs a starter comment with its article slug so RunSeeds can

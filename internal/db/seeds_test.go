@@ -43,31 +43,47 @@ func TestRunSeeds_PublishesTheFirstEdition(t *testing.T) {
 	if author.AvatarURL != "/static/img/author-matheus.jpg" {
 		t.Fatalf("avatar = %q", author.AvatarURL)
 	}
-	if author.ArticleCount != 1 {
-		t.Fatalf("article count = %d, want 1", author.ArticleCount)
+	if author.ArticleCount != 2 {
+		t.Fatalf("article count = %d, want 2", author.ArticleCount)
 	}
 
 	articles, err := s.ListArticles(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(articles) != 1 {
-		t.Fatalf("articles = %d, want the first edition", len(articles))
+	if len(articles) != 2 {
+		t.Fatalf("articles = %d, want the published edition", len(articles))
 	}
-	if articles[0].Slug != "traducao-epubs-llms-fila-por-capitulo" {
-		t.Fatalf("article = %q, want the translation essay", articles[0].Slug)
+	if articles[0].Slug != "captura-de-trafego-do-browser-para-agentes" {
+		t.Fatalf("newest article = %q, want the network listener essay", articles[0].Slug)
 	}
-	if articles[0].Author.Slug != "matheus-puppe" {
-		t.Fatalf("article author = %q", articles[0].Author.Slug)
+
+	translation := articles[1]
+	if translation.Slug != "traducao-epubs-llms-fila-por-capitulo" {
+		t.Fatalf("article = %q, want the translation essay", translation.Slug)
 	}
-	if len(articles[0].Blocks) == 0 {
+	if translation.Author.Slug != "matheus-puppe" {
+		t.Fatalf("article author = %q", translation.Author.Slug)
+	}
+	if len(translation.Blocks) == 0 {
 		t.Fatalf("first essay has no content blocks")
 	}
-	if articles[0].SlugEN != "epub-translation-llms-resilient-queue" {
-		t.Fatalf("english slug = %q", articles[0].SlugEN)
+	if translation.SlugEN != "epub-translation-llms-resilient-queue" {
+		t.Fatalf("english slug = %q", translation.SlugEN)
 	}
-	if articles[0].TitleEN == "" || articles[0].LeadParagraphEN == "" || len(articles[0].BlocksEN) == 0 {
-		t.Fatalf("english edition incomplete: %+v", articles[0])
+	if translation.TitleEN == "" || translation.LeadParagraphEN == "" || len(translation.BlocksEN) == 0 {
+		t.Fatalf("english edition incomplete: %+v", translation)
+	}
+
+	listener := articles[0]
+	if listener.SlugEN != "browser-traffic-capture-for-agents" {
+		t.Fatalf("network listener english slug = %q", listener.SlugEN)
+	}
+	if len(listener.Blocks) == 0 || len(listener.BlocksEN) == 0 {
+		t.Fatalf("network listener missing blocks: pt=%d en=%d", len(listener.Blocks), len(listener.BlocksEN))
+	}
+	if listener.Category != "Segurança & Criptografia" {
+		t.Fatalf("network listener category = %q", listener.Category)
 	}
 	if author.RoleEN == "" || author.BioEN == "" {
 		t.Fatalf("author english fields empty: %+v", author)
@@ -100,6 +116,37 @@ func TestPrimeiroEnsaio_CitesThePublicRepo(t *testing.T) {
 	englishCode, englishRepo := countCitations(primeiroEnsaioEn().Blocks)
 	if englishCode != codeLinks || englishRepo != repoLinks {
 		t.Fatalf("english citations = %d codes + %d repo, want %d + %d", englishCode, englishRepo, codeLinks, repoLinks)
+	}
+}
+
+func TestNetworkListener_CitesThePublicRepo(t *testing.T) {
+	const repo = "https://github.com/puppe1990/network-listener"
+
+	citations, repoLinks := 0, 0
+	for _, block := range networkListener().Blocks {
+		if strings.HasPrefix(block.SourceURL, repo) {
+			citations++
+			if block.SourceURL == repo {
+				repoLinks++
+			}
+		}
+	}
+	if citations != 6 {
+		t.Fatalf("citations = %d, want 3 codes + 2 quotes + 1 repo", citations)
+	}
+	if repoLinks != 1 {
+		t.Fatalf("repo links = %d, want 1", repoLinks)
+	}
+
+	english := networkListenerEn().Blocks
+	englishCitations := 0
+	for _, block := range english {
+		if strings.HasPrefix(block.SourceURL, repo) {
+			englishCitations++
+		}
+	}
+	if englishCitations != citations {
+		t.Fatalf("english citations = %d, want %d", englishCitations, citations)
 	}
 }
 
@@ -136,8 +183,15 @@ func TestRunSeeds_PrunesCatalogRowsThatLeftTheSeeds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(articles) != 1 || articles[0].Slug != "traducao-epubs-llms-fila-por-capitulo" {
-		t.Fatalf("catalog after reseed = %+v, want only the seeded essay", articles)
+	if len(articles) != 2 {
+		t.Fatalf("catalog after reseed = %d articles, want the two seeded essays", len(articles))
+	}
+	slugs := map[string]bool{}
+	for _, article := range articles {
+		slugs[article.Slug] = true
+	}
+	if !slugs["traducao-epubs-llms-fila-por-capitulo"] || !slugs["captura-de-trafego-do-browser-para-agentes"] {
+		t.Fatalf("catalog after reseed = %+v, want both seeded essays", slugs)
 	}
 	authors, err := s.ListAuthors(ctx)
 	if err != nil {
