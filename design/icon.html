@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- Marca do Sintaxe em tamanho cheio: o mesmo desenho do favicon.svg (fundo
+     breu + "S" serifado em cobre). Rasterizado por scripts/build-icons.sh com
+     Chrome headless em 512/192/180/32, então o PNG sai igual ao que o browser
+     mostra no favicon. Editar aqui e rodar `make icons`. -->
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sintaxe — marca</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #161513;
+      }
+      svg {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <svg id="mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512">
+      <rect width="64" height="64" fill="#161513" />
+      <text
+        x="32"
+        y="45"
+        font-family="Iowan Old Style, Palatino, Georgia, serif"
+        font-size="40"
+        font-weight="600"
+        text-anchor="middle"
+        fill="#f59e0b"
+      >
+        S
+      </text>
+    </svg>
+    <script>
+      // ?size=512 (padrão) estica o SVG para o tamanho pedido pelo screenshot.
+      const size = Number(new URLSearchParams(location.search).get("size") || 512);
+      const mark = document.getElementById("mark");
+      mark.setAttribute("width", String(size));
+      mark.setAttribute("height", String(size));
+    </script>
+  </body>
+</html>

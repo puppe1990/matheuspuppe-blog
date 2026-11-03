@@ -22,6 +22,12 @@ O Sintaxe é bilíngue por caminho: a raiz é pt-BR e `/en` é a edição ingles
 
 Para publicar a tradução de um ensaio novo, preencha os campos `*EN` (inclusive `SlugEN`) no arquivo `internal/db/content_articles_*.go` — a edição inglesa entra no mesmo deploy.
 
+## Ícones e PWA
+
+`web/static/favicon.svg` é a marca (fundo breu + "S" serifado em cobre) e a fonte única: os PNGs do PWA saem dela com `make icons` (Chrome headless, `scripts/build-icons.sh`), então o ícone instalado é o mesmo desenho da aba.
+
+`/static` é servido com `max-age` de um ano, então trocar o desenho exige subir a versão nas referências — `?v=N` no `manifest.webmanifest`, no `<head>` (manifest, apple-touch-icon, favicon) e no `PRECACHE` do `sw.js` (com `CACHE_VERSION` novo). O ícone do PWA **já instalado** é um retrato do dia da instalação: para ele mudar no celular, remova e adicione o app de novo.
+
 ## Highlight do código
 
 Os blocos de código são coloridos no servidor com [chroma](https://github.com/alecthomas/chroma) (`internal/highlight`), emitindo classes (`.kd`, `.s`, `.c`…) e nenhum estilo inline; a paleta vive no `input.css` (keywords em cobre, strings em sálvia, números em âmbar, comentários apagados) e acompanha o tema claro/escuro. Sem JS de terceiros, sem flash de código sem cor e sem mexer na CSP.

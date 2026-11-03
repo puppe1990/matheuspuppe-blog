@@ -1,12 +1,12 @@
-const CACHE_VERSION = 2;
+const CACHE_VERSION = 3;
 const CACHE = "cais-static-v" + CACHE_VERSION;
 
 const PRECACHE = [
   "/static/css/styles.css",
   "/static/js/amarra.js",
-  "/static/manifest.webmanifest",
-  "/static/icons/icon-192.png",
-  "/static/icons/icon-512.png",
+  "/static/manifest.webmanifest?v=2",
+  "/static/icons/icon-192.png?v=2",
+  "/static/icons/icon-512.png?v=2",
   "/static/offline.html",
 ];
 

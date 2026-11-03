@@ -1,4 +1,4 @@
-.PHONY: dev build test css css-watch lint format format-check pre-commit-install ci og
+.PHONY: dev build test css css-watch lint format format-check pre-commit-install ci og icons
 
 CAIS := $(shell command -v amarra-cais 2>/dev/null || command -v $(HOME)/go/bin/amarra-cais 2>/dev/null)
 
@@ -22,6 +22,9 @@ pre-commit-install:
 	pre-commit install
 
 ci: test lint format-check
+
+icons:
+	scripts/build-icons.sh
 
 og:
 	go run ./cmd/genog -out web/static/og.png
