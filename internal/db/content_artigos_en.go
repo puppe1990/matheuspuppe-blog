@@ -41,7 +41,8 @@ func primeiroEnsaioEn() englishEdition {
 				Type:     "code",
 				Language: "go",
 				Caption:  "Shutdown order: drain the queue before closing the database",
-				Code: `case <-ctx.Done():
+				Code: `select {
+case <-ctx.Done():
 	if a.runner != nil {
 		_ = a.runner.Drain(2 * time.Second)
 	}
@@ -55,9 +56,16 @@ func primeiroEnsaioEn() englishEdition {
 	case <-time.After(time.Second):
 	}
 	_ = a.store.Close()
-	return nil`,
-				SourceURL:   "https://github.com/puppe1990/epub-translator/blob/a4fa7ce/internal/app/app.go#L149-L163",
-				SourceLabel: "internal/app/app.go:149",
+	return nil
+case err := <-errCh:
+	_ = a.store.Close()
+	if err == http.ErrServerClosed {
+		return nil
+	}
+	return err
+}`,
+				SourceURL:   "https://github.com/puppe1990/epub-translator/blob/a4fa7ce/internal/app/app.go#L148-L170",
+				SourceLabel: "internal/app/app.go:148",
 			},
 			{Type: "paragraph", Text: "The drain does not mark the book as paused. Draining is about the process surviving, not about obeying a user: the book stays marked as translating, and the next boot understands that it must be resumed."},
 			{Type: "heading2", Text: "The boot that reconciles"},

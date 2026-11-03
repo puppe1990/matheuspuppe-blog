@@ -51,7 +51,8 @@ func primeiroEnsaio() models.Article {
 				Type:     "code",
 				Language: "go",
 				Caption:  "A ordem do desligamento: drenar a fila antes de fechar o banco",
-				Code: `case <-ctx.Done():
+				Code: `select {
+case <-ctx.Done():
 	if a.runner != nil {
 		_ = a.runner.Drain(2 * time.Second)
 	}
@@ -65,9 +66,16 @@ func primeiroEnsaio() models.Article {
 	case <-time.After(time.Second):
 	}
 	_ = a.store.Close()
-	return nil`,
-				SourceURL:   "https://github.com/puppe1990/epub-translator/blob/a4fa7ce/internal/app/app.go#L149-L163",
-				SourceLabel: "internal/app/app.go:149",
+	return nil
+case err := <-errCh:
+	_ = a.store.Close()
+	if err == http.ErrServerClosed {
+		return nil
+	}
+	return err
+}`,
+				SourceURL:   "https://github.com/puppe1990/epub-translator/blob/a4fa7ce/internal/app/app.go#L148-L170",
+				SourceLabel: "internal/app/app.go:148",
 			},
 			{Type: "paragraph", Text: "O drain não marca o livro como pausado. Drenar é sobreviver ao processo, não obedecer ao usuário: o livro continua como traduzindo e o boot seguinte sabe que precisa retomá-lo."},
 			{Type: "heading2", Text: "O boot que reconcilia"},

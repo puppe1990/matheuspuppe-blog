@@ -118,10 +118,10 @@ func TestArticle_PortugueseTogglePointsToEnglish(t *testing.T) {
 		t.Fatal("portuguese edition does not mark PT as the active language")
 	}
 	// Snippets cite the public repository, file and line included.
-	if !strings.Contains(rec.Body.String(), `https://github.com/puppe1990/epub-translator/blob/a4fa7ce/internal/app/app.go#L149-L163`) {
+	if !strings.Contains(rec.Body.String(), `https://github.com/puppe1990/epub-translator/blob/a4fa7ce/internal/app/app.go#L148-L170`) {
 		t.Fatal("code block lost its GitHub citation")
 	}
-	if !strings.Contains(rec.Body.String(), `>internal/app/app.go:149</a>`) {
+	if !strings.Contains(rec.Body.String(), `>internal/app/app.go:148</a>`) {
 		t.Fatal("code block lost the source label")
 	}
 	// Code is highlighted on the server: chroma classes travel with the page.
