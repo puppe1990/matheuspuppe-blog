@@ -96,7 +96,7 @@ func (h *ArticleHandler) CommentPost(w http.ResponseWriter, r *http.Request, slu
 		return
 	}
 
-	flash.Set(w, "notice", "Seu comentário foi publicado com sucesso!", h.cfg.CookieSecure())
+	flash.Set(w, "notice", "Seu comentário foi publicado.", h.cfg.CookieSecure())
 	http.Redirect(w, r, "/artigo/"+article.Slug, http.StatusSeeOther)
 }
 

@@ -86,7 +86,7 @@
     if (total > 0) {
       progress = Math.min(100, Math.max(0, Number(((window.scrollY / total) * 100).toFixed(1))));
     }
-    track.style.width = progress + "%";
+    track.style.transform = "scaleX(" + progress / 100 + ")";
     var trackHost = document.getElementById("reading-progress-track");
     if (trackHost) trackHost.setAttribute("aria-valuenow", String(Math.round(progress)));
     var readout = document.getElementById("focus-readout");
@@ -116,7 +116,7 @@
     }
     if (navigator.clipboard) {
       navigator.clipboard.writeText(payload.url).then(function () {
-        toast("Link do artigo copiado com sucesso!");
+        toast("Link copiado.");
       }).catch(function () {});
     }
   });
@@ -155,7 +155,7 @@
       clearInterval(audioTimer);
       audioTimer = null;
       if (els.toggle) els.toggle.setAttribute("aria-pressed", "false");
-      if (els.label) els.label.textContent = "Ouvir Versão em Áudio";
+      if (els.label) els.label.textContent = "Ouvir";
       return;
     }
     audioTimer = setInterval(function () {
@@ -166,13 +166,13 @@
         audioTimer = null;
         var current = audioElements();
         if (current.toggle) current.toggle.setAttribute("aria-pressed", "false");
-        if (current.label) current.label.textContent = "Ouvir Versão em Áudio";
+        if (current.label) current.label.textContent = "Ouvir";
       }
       var els2 = audioElements();
-      if (els2.progress) els2.progress.style.width = audioProgress + "%";
+      if (els2.progress) els2.progress.style.transform = "scaleX(" + audioProgress / 100 + ")";
     }, 500);
     if (els.toggle) els.toggle.setAttribute("aria-pressed", "true");
-    if (els.label) els.label.textContent = "Sintetizando Narração...";
+    if (els.label) els.label.textContent = "Tocando";
   });
 
   /* Newsletter dialog: remember where the reader was so the flash lands there. */
@@ -209,7 +209,7 @@
   function paintBars() {
     document.querySelectorAll("[data-bar-width]").forEach(function (bar) {
       var width = parseFloat(bar.getAttribute("data-bar-width") || "0");
-      bar.style.width = Math.min(100, Math.max(0, width)) + "%";
+      bar.style.transform = "scaleX(" + Math.min(100, Math.max(0, width)) / 100 + ")";
     });
   }
 

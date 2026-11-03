@@ -1,40 +1,33 @@
 {{ define "content" }}
-<div class="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-  <div class="border-b border-foam/10 pb-6">
-    <div class="mb-2 flex items-center gap-2 font-mono text-xs uppercase text-copper">
-      <svg class="h-4 w-4 fill-current" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-      <span>Sua Biblioteca Pessoal</span>
-    </div>
-    <h1 class="text-3xl font-serif font-bold text-foam sm:text-4xl">Artigos Salvos ({{ .SavedCount }})</h1>
-    <p class="mt-2 text-sm text-foam/60">Publicações marcadas para leitura aprofundada posterior. Guardadas no seu navegador.</p>
-  </div>
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+  <header class="border-b border-foam/10 pb-6">
+    <span class="mb-3 block h-0.5 w-12 bg-copper" aria-hidden="true"></span>
+    <h1 class="font-serif text-3xl font-medium tracking-tight text-foam">Artigos salvos</h1>
+    <p class="mt-2 text-[13px] leading-6 text-foam/60">Guardados neste navegador, para leitura depois.</p>
+  </header>
 
   {{ template "category_nav" . }}
 
   {{ if eq .TotalResults 0 }}
-  <div class="rounded-2xl border border-foam/10 bg-foam/[0.03] p-8 py-20 text-center">
-    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-foam/5 text-foam/40" aria-hidden="true">
-      <svg class="h-6 w-6 fill-current" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-    </div>
-    <h3 class="font-serif text-lg font-bold text-foam">Nenhum artigo salvo ainda</h3>
-    <p class="mx-auto mt-2 max-w-sm text-xs text-foam/50 sm:text-sm">Explore nossa edição e clique no ícone de marcador para salvar ensaios aqui.</p>
+  <div class="rounded-xl border border-foam/10 p-8 py-16 text-center sm:py-20">
+    <h3 class="font-serif text-xl font-medium text-foam">Nenhum artigo salvo</h3>
+    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">Use o marcador em qualquer ensaio para guardá-lo aqui.</p>
     <div class="mt-6">
-      <a href="/" class="rounded-lg bg-foam px-4 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90">Explorar Todos os Artigos</a>
+      <a href="/" class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">Explorar a edição</a>
     </div>
   </div>
   {{ else }}
   <div class="space-y-12">
     {{ if .Lead }}
-    <section aria-label="História Principal">
+    <section aria-label="Ensaio principal">
       {{ template "lead_article" (dict "A" .Lead "Next" .CurrentPath "CSRFToken" .CSRFToken) }}
     </section>
     {{ end }}
 
     {{ if .Secondary }}
-    <section aria-label="Destaques Secundários">
-      <div class="mb-4 flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-wider text-foam/50">
-        <span class="text-copper" aria-hidden="true">✦</span>
-        <span>Análises em Destaque</span>
+    <section aria-label="Destaques">
+      <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">
+        <h2 class="text-[13px] font-medium text-foam/60">Destaques</h2>
       </div>
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         {{ range .Secondary }}
@@ -47,7 +40,8 @@
     {{ if .Grid }}
     <section aria-label="Demais salvos">
       <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">
-        <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-foam/50">Demais Ensaios Salvos ({{ len .Grid }})</h3>
+        <h2 class="text-[13px] font-medium text-foam/60">Mais salvos</h2>
+        <span class="text-xs tabular-nums text-foam/55">{{ len .Grid }}</span>
       </div>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {{ range .Grid }}

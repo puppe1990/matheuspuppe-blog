@@ -26,13 +26,15 @@ func getLaboratorio(t *testing.T, target string) string {
 func TestLaboratorioHandler_Defaults(t *testing.T) {
 	body := getLaboratorio(t, "/laboratorio")
 	for _, needle := range []string{
-		"Simulador de Runtimes em Alta Concorrência",
+		"Simulador de runtimes",
+		"Requisições por segundo",
 		"Rust (Tokio",
 		"Go (Gin / net/http)",
 		"Node.js (Fastify)",
 		"Python (FastAPI",
-		"25.000 req/s",
+		"25.000",
 		"6.127",
+		"Sobre o modelo",
 	} {
 		if !strings.Contains(body, needle) {
 			t.Errorf("body missing %q", needle)
@@ -42,10 +44,10 @@ func TestLaboratorioHandler_Defaults(t *testing.T) {
 
 func TestLaboratorioHandler_QueryDrivesTheSimulation(t *testing.T) {
 	body := getLaboratorio(t, "/laboratorio?reqs=100000&payload=32")
-	if !strings.Contains(body, "100.000 req/s") {
+	if !strings.Contains(body, "100.000") {
 		t.Errorf("reqs label not applied")
 	}
-	if !strings.Contains(body, "32 KB / requisição") {
+	if !strings.Contains(body, "32 KB") {
 		t.Errorf("payload label not applied")
 	}
 	// Rust p99 at max load: 0.3 + 0.8 + 0.5 = 1.6 ms.
@@ -56,10 +58,10 @@ func TestLaboratorioHandler_QueryDrivesTheSimulation(t *testing.T) {
 
 func TestLaboratorioHandler_ClampsOutOfRange(t *testing.T) {
 	body := getLaboratorio(t, "/laboratorio?reqs=999999&payload=0")
-	if !strings.Contains(body, "100.000 req/s") {
+	if !strings.Contains(body, "100.000") {
 		t.Errorf("reqs out of range not clamped to max")
 	}
-	if !strings.Contains(body, "1 KB / requisição") {
+	if !strings.Contains(body, "1 KB") {
 		t.Errorf("payload out of range not clamped to min")
 	}
 }

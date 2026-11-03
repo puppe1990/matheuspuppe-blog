@@ -3,27 +3,25 @@
 @tailwind utilities;
 
 @layer base {
-  /* Palette as CSS variables so the theme hook flips the journal: :root is the
-     editorial night (stone ink + amber copper), html.light the printed paper.
-     Keep the ink/foam/copper/tide keys — the kit classes and amarra-cais doctor
-     read them (#258). */
+  /* Warm ink ramp: a print room at night. Keep the ink/foam/copper/tide keys —
+     the kit classes and amarra-cais doctor read them (#258). */
   :root {
     color-scheme: dark;
-    --amarra-ink: 12 10 9;
-    --amarra-foam: 245 245 244;
-    --amarra-copper: 245 158 11;
-    --amarra-tide: 28 25 23;
-    --amarra-coral: 231 145 96;
-    --amarra-danger: 248 113 113;
-    --amarra-success: 74 222 128;
+    --amarra-ink: 22 21 19; /* #161513 page */
+    --amarra-foam: 239 233 222; /* #efe9de primary text */
+    --amarra-copper: 245 158 11; /* rubricated accent */
+    --amarra-tide: 28 26 24; /* #1c1a18 raised surface */
+    --amarra-coral: 224 122 74;
+    --amarra-danger: 229 72 77;
+    --amarra-success: 76 195 138;
   }
 
   html.light {
     color-scheme: light;
-    --amarra-ink: 250 250 249;
-    --amarra-foam: 28 25 23;
-    --amarra-copper: 180 83 9;
-    --amarra-tide: 231 229 228;
+    --amarra-ink: 247 244 238; /* warm paper */
+    --amarra-foam: 31 27 22; /* warm ink text */
+    --amarra-copper: 180 83 9; /* ember on paper */
+    --amarra-tide: 239 233 223; /* raised paper */
     --amarra-coral: 194 65 12;
     --amarra-danger: 220 38 38;
     --amarra-success: 22 163 74;
@@ -33,17 +31,22 @@
     @apply font-sans antialiased text-foam bg-ink;
   }
 
-  /* One curve and one duration for every interactive surface. Only paint and
-     transform transition, never layout. */
+  /* Motion: paint and transform only, one curve. */
   a,
   button,
   input,
   select,
   textarea,
-  summary {
-    transition-property: color, background-color, border-color, opacity, transform, width;
+  summary,
+  [role="button"] {
+    transition-property: color, background-color, border-color, opacity, transform;
     transition-duration: 150ms;
     transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--amarra-copper));
+    outline-offset: 2px;
   }
 }
 
@@ -78,11 +81,11 @@
   /* Shared control kit: the shipped components render these classes, so a
      field and a button look the same no matter which generator wrote it. */
   .amarra-label {
-    @apply mb-2 block text-sm text-foam/70;
+    @apply mb-2 block text-[13px] text-foam/60;
   }
 
   .amarra-field {
-    @apply w-full rounded-lg border border-foam/15 bg-ink px-3 py-2 text-sm text-foam placeholder:text-foam/40 focus:border-copper/60 focus:outline-none focus:ring-2 focus:ring-copper/30;
+    @apply w-full rounded-lg border border-foam/10 bg-ink px-3 py-2 text-sm text-foam placeholder:text-foam/40 focus:border-copper/60 focus:outline-none focus:ring-2 focus:ring-copper/30;
   }
 
   .amarra-error {
@@ -94,11 +97,11 @@
   }
 
   .amarra-btn-primary {
-    @apply bg-copper text-ink hover:bg-copper/90 active:scale-[0.98];
+    @apply bg-foam text-ink hover:bg-foam/90 active:scale-[0.98];
   }
 
   .amarra-btn-secondary {
-    @apply border border-foam/15 bg-ink text-foam/80 hover:bg-foam/5 hover:text-foam active:scale-[0.98];
+    @apply border border-foam/10 bg-ink text-foam/80 hover:bg-foam/5 hover:text-foam active:scale-[0.98];
   }
 
   .amarra-btn-quiet {
@@ -115,7 +118,7 @@
   @media (min-width: 640px) {
     .amarra-reader {
       --reader-font: 1.125rem;
-      --reader-leading: 1.9;
+      --reader-leading: 1.85;
     }
   }
 
@@ -149,13 +152,13 @@
     line-height: var(--reader-leading);
   }
 
-  /* Editorial drop cap on the lead paragraph. */
+  /* Signature: the rubricated drop cap that opens every essay. */
   .amarra-dropcap::first-letter {
     float: left;
     margin: 0.35rem 0.75rem 0 0;
     font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-    font-size: 3.25rem;
-    font-weight: 700;
+    font-size: 3rem;
+    font-weight: 500;
     line-height: 0.9;
     color: rgb(var(--amarra-copper));
   }
@@ -175,9 +178,9 @@
     content: counter(takeaway, decimal-leading-zero) ".";
     margin-top: 0.3em;
     margin-right: 0.625rem;
-    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.6875rem;
-    font-weight: 700;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
     color: rgb(var(--amarra-copper));
   }
 
@@ -195,6 +198,14 @@
     display: flex;
   }
 
+  /* Reading progress and the audio simulator scale, never animate width. */
+  #reading-progress,
+  [data-audio-progress] {
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   /* JS-only surfaces carry their full styling here: the classes never appear
      in scanned HTML, so Tailwind would prune utilities used only by scripts. */
   .amarra-toast {
@@ -203,11 +214,11 @@
     bottom: 1.5rem;
     z-index: 70;
     padding: 0.625rem 1rem;
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     background: rgb(var(--amarra-foam));
     color: rgb(var(--amarra-ink));
     font-size: 0.75rem;
     font-weight: 500;
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.28);
   }
 }

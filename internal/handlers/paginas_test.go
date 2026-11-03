@@ -32,7 +32,7 @@ func TestSobreHandler_RendersManifestoAndAuthors(t *testing.T) {
 	body := rr.Body.String()
 	for _, needle := range []string{
 		"Engenharia com profundidade",
-		"Corpo de Autores",
+		"Quem escreve",
 		"Matheus Puppe",
 		"ensaios",
 	} {

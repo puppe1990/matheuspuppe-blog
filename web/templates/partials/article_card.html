@@ -1,39 +1,36 @@
 {{ define "article_card" }}
 {{ $a := .A }}
-<article class="group flex flex-col justify-between overflow-hidden rounded-xl border border-foam/10 bg-foam/[0.03] transition-all duration-300 hover:border-foam/25 hover:shadow-md">
+<article class="group flex flex-col justify-between overflow-hidden rounded-xl border border-foam/10 transition-colors hover:border-foam/20">
   <div>
-    <a href="/artigo/{{ $a.Slug }}" class="relative block aspect-[16/9] overflow-hidden bg-foam/5" tabindex="-1" aria-hidden="true">
-      <img src="{{ $a.CoverImage }}" alt="" loading="lazy" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+    <a href="/artigo/{{ $a.Slug }}" class="block aspect-[16/9] overflow-hidden border-b border-foam/10 bg-foam/5" tabindex="-1" aria-hidden="true">
+      <img src="{{ $a.CoverImage }}" alt="" loading="lazy" class="h-full w-full object-cover" />
     </a>
-    <div class="p-5 sm:p-6">
-      <div class="mb-2.5 flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-foam/50">
-        <span class="font-semibold text-copper">{{ $a.Category }}</span>
-        <span aria-hidden="true" class="text-foam/25">·</span>
-        <span>{{ $a.ReadTimeMinutes }} min de leitura</span>
+    <div class="p-6">
+      <div class="mb-2 flex items-center gap-2 text-xs text-foam/55">
+        <span>{{ $a.Category }}</span>
+        <span aria-hidden="true">·</span>
+        <span>{{ $a.ReadTimeMinutes }} min</span>
       </div>
-      <h3 class="font-serif text-base font-bold leading-snug tracking-tight text-foam sm:text-lg">
-        <a href="/artigo/{{ $a.Slug }}" class="transition-colors hover:text-copper">{{ $a.Title }}</a>
+      <h3 class="font-serif text-lg font-medium leading-snug tracking-tight text-foam">
+        <a href="/artigo/{{ $a.Slug }}" class="transition-colors hover:text-foam/80">{{ $a.Title }}</a>
       </h3>
-      <p class="mt-2.5 line-clamp-2 text-xs leading-relaxed text-foam/60 sm:text-sm">{{ if $a.Subtitle }}{{ $a.Subtitle }}{{ else }}{{ $a.LeadParagraph }}{{ end }}</p>
+      <p class="mt-2 line-clamp-2 text-[13px] leading-6 text-foam/60">{{ if $a.Subtitle }}{{ $a.Subtitle }}{{ else }}{{ $a.LeadParagraph }}{{ end }}</p>
     </div>
   </div>
-  <div class="flex items-center justify-between border-t border-foam/10 px-5 pb-5 pt-3 sm:px-6 sm:pb-6">
-    <a href="/autor/{{ $a.Author.Slug }}" class="group/auth flex items-center gap-2.5">
-      <img src="{{ $a.Author.AvatarURL }}" alt="{{ $a.Author.Name }}" loading="lazy" class="h-7 w-7 rounded-full object-cover ring-1 ring-foam/15" />
-      <span class="leading-tight">
-        <span class="block text-xs font-semibold text-foam/90 transition-colors group-hover/auth:text-copper">{{ $a.Author.Name }}</span>
-        <span class="block font-mono text-[10px] text-foam/40">{{ $a.DateLabel }}</span>
-      </span>
+  <div class="flex items-center justify-between px-6 pb-6 pt-3">
+    <a href="/autor/{{ $a.Author.Slug }}" class="flex items-center gap-2.5">
+      <img src="{{ $a.Author.AvatarURL }}" alt="{{ $a.Author.Name }}" loading="lazy" class="h-6 w-6 rounded-full object-cover ring-1 ring-foam/10" />
+      <span class="text-xs text-foam/60 transition-colors group-hover:text-foam">{{ $a.Author.Name }}</span>
     </a>
-    <div class="flex items-center gap-1.5">
+    <div class="flex items-center gap-1">
       <.form action="/salvos/{{ $a.Slug }}" method="post" class="flex">
         <input type="hidden" name="next" value="{{ .Next }}" />
-        <button type="submit" data-saved="{{ if $a.Saved }}true{{ else }}false{{ end }}" class="rounded-md border p-1.5 transition-colors {{ if $a.Saved }}border-copper/70 bg-copper/10 text-copper{{ else }}border-transparent text-foam/40 hover:bg-foam/5 hover:text-foam{{ end }}" aria-label="{{ if $a.Saved }}Remover dos salvos{{ else }}Salvar artigo{{ end }}" title="{{ if $a.Saved }}Salvo{{ else }}Salvar{{ end }}">
-          <svg class="h-3.5 w-3.5 {{ if $a.Saved }}fill-current{{ end }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+        <button type="submit" data-saved="{{ if $a.Saved }}true{{ else }}false{{ end }}" class="rounded-md p-1.5 transition-colors {{ if $a.Saved }}text-copper{{ else }}text-foam/55 hover:text-foam{{ end }}" aria-label="{{ if $a.Saved }}Remover dos salvos{{ else }}Salvar artigo{{ end }}" title="{{ if $a.Saved }}Salvo{{ else }}Salvar{{ end }}">
+          <svg class="h-4 w-4 {{ if $a.Saved }}fill-current{{ end }}" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
         </button>
       </.form>
-      <a href="/artigo/{{ $a.Slug }}" class="rounded-md p-1.5 text-foam/40 transition-colors hover:bg-foam/5 hover:text-foam" aria-label="Abrir artigo">
-        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M13 6l6 6-6 6" /></svg>
+      <a href="/artigo/{{ $a.Slug }}" class="rounded-md p-1.5 text-foam/55 transition-colors hover:text-foam" aria-label="Abrir artigo">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" /></svg>
       </a>
     </div>
   </div>

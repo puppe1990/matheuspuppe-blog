@@ -1,56 +1,48 @@
 {{ define "content" }}
-<div class="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-  <div class="flex flex-col justify-between gap-4 border-b border-foam/10 pb-5 sm:flex-row sm:items-end">
-    <div>
-      <div class="mb-1 text-[11px] font-mono uppercase tracking-widest text-foam/40">EDIÇÃO VOL. IV · PRIMAVERA 2026 · SINTAXE.TECH</div>
-      <h1 class="text-2xl font-serif font-bold tracking-tight text-foam sm:text-3xl lg:text-4xl">O Estado da Arte em Computação e Sistemas</h1>
+<div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+  <header class="border-b border-foam/10 pb-6">
+    <div class="flex items-end justify-between gap-6">
+      <div>
+        <span class="mb-3 block h-0.5 w-12 bg-copper" aria-hidden="true"></span>
+        <p class="text-xs text-foam/55">{{ .EditionDate }}</p>
+        <h1 class="mt-2 font-serif text-3xl font-medium leading-tight tracking-tight text-foam sm:text-4xl lg:text-5xl">Ensaios sobre sistemas, inteligência artificial e infraestrutura</h1>
+      </div>
+      <p class="hidden shrink-0 pb-1 text-xs tabular-nums text-foam/55 sm:block">{{ .TotalArticles }} {{ if eq .TotalArticles 1 }}ensaio{{ else }}ensaios{{ end }}</p>
     </div>
-    <div class="flex items-center gap-3 font-mono text-xs text-foam/50">
-      <span>Curadoria Independente</span>
-      <span aria-hidden="true">·</span>
-      <span>{{ .TotalArticles }} Ensaios Ativos</span>
-    </div>
-  </div>
+  </header>
 
   {{ template "category_nav" . }}
 
   {{ if eq .TotalResults 0 }}
   {{ if eq .TotalArticles 0 }}
-  <div class="rounded-2xl border border-foam/10 bg-foam/[0.03] p-8 py-20 text-center">
-    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-copper/10 text-copper" aria-hidden="true">
-      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-    </div>
-    <h3 class="font-serif text-lg font-bold text-foam sm:text-xl">A primeira edição está em preparação</h3>
-    <p class="mx-auto mt-2 max-w-sm text-xs text-foam/50 sm:text-sm">Os primeiros ensaios estão sendo escritos. Assine o boletim e receba a edição no dia em que ela sair.</p>
+  <div class="rounded-xl border border-foam/10 p-8 py-16 text-center sm:py-20">
+    <h3 class="font-serif text-xl font-medium text-foam">A primeira edição está em preparação</h3>
+    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">Os primeiros ensaios estão sendo escritos. Assine o boletim e receba a edição no dia em que ela sair.</p>
     <div class="mt-6">
-      <button type="button" data-amarra-dialog-open class="rounded-lg bg-foam px-4 py-2 text-xs font-semibold text-ink transition-opacity hover:opacity-90">Assinar Boletim</button>
+      <button type="button" data-amarra-dialog-open class="inline-flex h-9 items-center rounded-lg bg-foam px-4 text-[13px] font-medium text-ink transition-colors hover:bg-foam/90">Assinar boletim</button>
     </div>
   </div>
   {{ else }}
-  <div class="rounded-2xl border border-foam/10 bg-foam/[0.03] p-8 py-20 text-center">
-    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-foam/5 text-foam/40" aria-hidden="true">
-      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-    </div>
-    <h3 class="font-serif text-lg font-bold text-foam">Nenhuma publicação encontrada</h3>
-    <p class="mx-auto mt-2 max-w-sm text-xs text-foam/50 sm:text-sm">Não encontramos resultados para "{{ .Search }}" com os filtros selecionados.</p>
+  <div class="rounded-xl border border-foam/10 p-8 py-16 text-center sm:py-20">
+    <h3 class="font-serif text-xl font-medium text-foam">Nenhuma publicação encontrada</h3>
+    <p class="mx-auto mt-2 max-w-sm text-[13px] leading-6 text-foam/60">Nada corresponde a "{{ .Search }}" com os filtros atuais.</p>
     <div class="mt-6">
-      <a href="/" class="rounded-lg border border-foam/20 px-4 py-2 text-xs font-semibold transition-colors hover:bg-foam/5">Limpar Filtros de Busca</a>
+      <a href="/" class="inline-flex h-9 items-center rounded-lg border border-foam/10 px-4 text-[13px] font-medium text-foam/80 transition-colors hover:bg-foam/5 hover:text-foam">Limpar filtros</a>
     </div>
   </div>
   {{ end }}
   {{ else }}
   <div class="space-y-12">
     {{ if .Lead }}
-    <section aria-label="História Principal">
+    <section aria-label="Ensaio principal">
       {{ template "lead_article" (dict "A" .Lead "Next" .CurrentPath "CSRFToken" .CSRFToken) }}
     </section>
     {{ end }}
 
     {{ if .Secondary }}
-    <section aria-label="Destaques Secundários">
-      <div class="mb-4 flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-wider text-foam/50">
-        <span class="text-copper" aria-hidden="true">✦</span>
-        <span>Análises em Destaque</span>
+    <section aria-label="Destaques">
+      <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">
+        <h2 class="text-[13px] font-medium text-foam/60">Destaques</h2>
       </div>
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         {{ range .Secondary }}
@@ -61,28 +53,24 @@
     {{ end }}
 
     {{ if not .Filtering }}
-    <div class="flex flex-col items-start justify-between gap-6 rounded-2xl border border-foam/10 bg-foam/[0.05] p-6 shadow-md sm:flex-row sm:items-center sm:p-8">
-      <div class="max-w-xl space-y-2">
-        <div class="flex items-center gap-2 font-mono text-xs uppercase text-copper">
-          <span aria-hidden="true">◆</span>
-          <span>Laboratório Técnico Sintaxe</span>
-        </div>
-        <h3 class="font-serif text-xl font-bold tracking-tight text-foam sm:text-2xl">Experimente nosso Simulador de Runtimes em Alta Concorrência</h3>
-        <p class="text-xs leading-relaxed text-foam/60 sm:text-sm">
-          Compare a curva de latência p99 e uso de RAM entre Rust, Go, Node e Python sob cargas dinâmicas de 1k a 100k requisições por segundo.
-        </p>
+    <div class="flex flex-col items-start justify-between gap-4 rounded-xl border border-foam/10 p-6 sm:flex-row sm:items-center">
+      <div class="space-y-1">
+        <p class="text-xs text-foam/55">Laboratório</p>
+        <h3 class="font-serif text-xl font-medium tracking-tight text-foam">Simulador de runtimes</h3>
+        <p class="max-w-lg text-[13px] leading-6 text-foam/60">Compare latência p99, memória e CPU de Rust, Go, Node e Python sob a mesma carga.</p>
       </div>
-      <a href="/laboratorio" class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl bg-copper px-4 py-2.5 text-xs font-semibold text-ink shadow-sm transition-opacity hover:opacity-90 sm:text-sm">
-        <span>Abrir Simulador</span>
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M13 6l6 6-6 6" /></svg>
+      <a href="/laboratorio" class="inline-flex items-center gap-1.5 text-[13px] font-medium text-foam/80 transition-colors hover:text-foam">
+        <span>Abrir simulador</span>
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" /></svg>
       </a>
     </div>
     {{ end }}
 
     {{ if .Grid }}
-    <section aria-label="Caderno de Publicações">
+    <section aria-label="Mais ensaios">
       <div class="mb-4 flex items-center justify-between border-b border-foam/10 pb-2">
-        <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-foam/50">Demais Ensaios &amp; Despachos ({{ len .Grid }})</h3>
+        <h2 class="text-[13px] font-medium text-foam/60">Mais ensaios</h2>
+        <span class="text-xs tabular-nums text-foam/55">{{ len .Grid }}</span>
       </div>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {{ range .Grid }}

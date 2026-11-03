@@ -14,7 +14,7 @@ func TestDefaultCatalog_editorialCopy(t *testing.T) {
 
 func TestNewCatalog_portuguese(t *testing.T) {
 	c := NewCatalog("pt-BR")
-	if got := c.T("nav.sobre"); got != "Sobre a Redação" {
+	if got := c.T("nav.sobre"); got != "Sobre a redação" {
 		t.Errorf("T(nav.sobre) = %q", got)
 	}
 	if c.HTMLLang() != "pt-BR" {

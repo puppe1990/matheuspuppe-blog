@@ -40,16 +40,6 @@ module.exports = {
        their rules and the chrome never hides. */
     "amarra-focus",
     "amarra-toast",
-    /* The runtime simulator picks one palette per stack in Go, so the class
-       names never appear in scanned HTML. */
-    "bg-amber-500",
-    "bg-cyan-500",
-    "bg-emerald-500",
-    "bg-indigo-500",
-    "border-amber-500/40",
-    "border-cyan-500/40",
-    "border-emerald-500/40",
-    "border-indigo-500/40",
   ],
   theme: {
     extend: {
@@ -74,7 +64,7 @@ module.exports = {
           "Georgia",
           "serif",
         ],
-        mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       boxShadow: {
         "2xs": "0 1px 2px 0 rgb(0 0 0 / 0.05)",

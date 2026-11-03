@@ -42,10 +42,10 @@ func TestArticleHandler_ShowRendersEssay(t *testing.T) {
 		"O Primeiro Ensaio",
 		"Uma dissecação do sistema, do cais ao mar aberto.",
 		"Matheus Puppe",
-		"Conclusões Fundamentais &amp; Invariants",
+		"Pontos-chave",
 		"O Problema Central",
-		"#Inteligência Artificial",
-		"Discussão da Comunidade Técnica",
+		"Inteligência Artificial",
+		"Comentários",
 		"Leitor Um",
 	} {
 		if !strings.Contains(body, needle) {

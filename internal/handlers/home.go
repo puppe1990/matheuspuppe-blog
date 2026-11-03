@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/puppe1990/amarra-cais/pkg/amarra/view"
 	"github.com/puppe1990/amarra-cais/pkg/cais"
@@ -66,6 +67,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	writeView(w, r, h.views, h.cfg, "app", "home", amarraData(r, h.site, map[string]any{
 		"Title":          h.t(r, "home.title"),
 		"ActiveNav":      "artigos",
+		"EditionDate":    editorial.FormatDate(time.Now()),
 		"TotalArticles":  len(articles),
 		"TotalResults":   len(filtered),
 		"Filtering":      filtering,

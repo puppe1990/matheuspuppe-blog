@@ -39,6 +39,6 @@ func (h *NewsletterHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flash.Set(w, "notice", "Inscrição confirmada! Enviamos uma mensagem de boas-vindas para "+email+".", h.cfg.CookieSecure())
+	flash.Set(w, "notice", "Inscrição confirmada. As boas-vindas foram para "+email+".", h.cfg.CookieSecure())
 	http.Redirect(w, r, next, http.StatusSeeOther)
 }

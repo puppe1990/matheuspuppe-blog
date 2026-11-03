@@ -57,7 +57,7 @@ func TestHomeHandler_RendersEditorialTiers(t *testing.T) {
 			t.Errorf("body missing %q", title)
 		}
 	}
-	if !strings.Contains(body, "6 Ensaios Ativos") {
+	if !strings.Contains(body, "6 ensaios") {
 		t.Errorf("body missing the active-essay count")
 	}
 }
@@ -94,7 +94,9 @@ func TestHomeHandler_TimeFilter(t *testing.T) {
 
 func TestHomeHandler_CategoryCountsShown(t *testing.T) {
 	body := getHome(t, "/")
-	if !strings.Contains(body, ">(6)<") {
+	// The chip count for "Todos" is the only bare six on the page (the "Mais
+	// ensaios" grid count is three and the masthead says "6 ensaios").
+	if !strings.Contains(body, ">6</span>") {
 		t.Errorf("body missing the Todos count (6)")
 	}
 }
@@ -119,7 +121,7 @@ func TestHomeHandler_FirstEditionEmptyState(t *testing.T) {
 	if !strings.Contains(body, "A primeira edição está em preparação") {
 		t.Errorf("first-edition empty state missing")
 	}
-	if !strings.Contains(body, "0 Ensaios Ativos") {
+	if !strings.Contains(body, "0 ensaios") {
 		t.Errorf("body missing the zero essay counter")
 	}
 }
@@ -148,7 +150,7 @@ func TestHomeHandler_HidesScheduledEssays(t *testing.T) {
 	if strings.Contains(body, "Ensaio Agendado Confidencial") {
 		t.Errorf("scheduled essay visible in the feed before its day")
 	}
-	if !strings.Contains(body, "6 Ensaios Ativos") {
+	if !strings.Contains(body, "6 ensaios") {
 		t.Errorf("essay counter must ignore scheduled essays (want 6)")
 	}
 }

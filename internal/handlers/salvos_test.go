@@ -38,10 +38,10 @@ func TestSavedHandler_EmptyLibrary(t *testing.T) {
 		t.Fatalf("status = %d, want 200", rr.Code)
 	}
 	body := rr.Body.String()
-	if !strings.Contains(body, "Artigos Salvos (0)") {
+	if !strings.Contains(body, "Artigos salvos") {
 		t.Errorf("missing saved counter header")
 	}
-	if !strings.Contains(body, "Nenhum artigo salvo ainda") {
+	if !strings.Contains(body, "Nenhum artigo salvo") {
 		t.Errorf("missing empty state")
 	}
 }
